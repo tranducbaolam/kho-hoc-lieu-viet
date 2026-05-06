@@ -32,7 +32,7 @@ async function generateUniqueSlug(title: string, excludeId?: string): Promise<st
 
 export async function createPost(values: PostFormValues) {
   const profile = await getProfile()
-  if (!profile || !can(profile.role as Role, 'posts:create')) {
+  if (!profile || profile.role !== 'admin' || !can(profile.role as Role, 'posts:create')) {
     return { error: 'Unauthorized' }
   }
 
@@ -81,22 +81,9 @@ export async function createPost(values: PostFormValues) {
 
 export async function updatePost(id: string, values: PostFormValues) {
   const profile = await getProfile()
-  if (!profile) return { error: 'Unauthorized' }
+  if (!profile || profile.role !== 'admin') return { error: 'Unauthorized' }
 
   const supabase = await createClient()
-
-  // Check ownership for non-admins
-  if (profile.role !== 'admin') {
-    const { data: existing } = await supabase
-      .from('posts')
-      .select('author_id')
-      .eq('id', id)
-      .single()
-
-    if (existing?.author_id !== profile.id) {
-      return { error: 'Unauthorized' }
-    }
-  }
 
   const slug = values.slug || await generateUniqueSlug(values.title, id)
 
@@ -144,7 +131,7 @@ export async function updatePost(id: string, values: PostFormValues) {
 
 export async function publishPost(id: string) {
   const profile = await getProfile()
-  if (!profile || !can(profile.role as Role, 'posts:publish')) {
+  if (!profile || profile.role !== 'admin' || !can(profile.role as Role, 'posts:publish')) {
     return { error: 'Unauthorized' }
   }
 
@@ -173,7 +160,7 @@ export async function publishPost(id: string) {
 
 export async function unpublishPost(id: string) {
   const profile = await getProfile()
-  if (!profile || !can(profile.role as Role, 'posts:publish')) {
+  if (!profile || profile.role !== 'admin' || !can(profile.role as Role, 'posts:publish')) {
     return { error: 'Unauthorized' }
   }
 
@@ -196,21 +183,9 @@ export async function unpublishPost(id: string) {
 
 export async function deletePost(id: string) {
   const profile = await getProfile()
-  if (!profile) return { error: 'Unauthorized' }
+  if (!profile || profile.role !== 'admin') return { error: 'Unauthorized' }
 
   const supabase = await createClient()
-
-  if (profile.role !== 'admin') {
-    const { data: existing } = await supabase
-      .from('posts')
-      .select('author_id')
-      .eq('id', id)
-      .single()
-
-    if (existing?.author_id !== profile.id) {
-      return { error: 'Unauthorized' }
-    }
-  }
 
   const { error } = await supabase.from('posts').delete().eq('id', id)
   if (error) return { error: error.message }

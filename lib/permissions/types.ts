@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'author'
+export type Role = 'admin' | 'user'
 
 export type Permission =
   | 'posts:create'

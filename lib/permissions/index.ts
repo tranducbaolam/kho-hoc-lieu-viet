@@ -3,30 +3,18 @@ import type { Role, Permission } from './types'
 const rolePermissions: Record<Role, Permission[]> = {
   admin: [
     'posts:create',
-    'posts:read:own',
     'posts:read:all',
-    'posts:update:own',
     'posts:update:all',
-    'posts:delete:own',
     'posts:delete:all',
     'posts:publish',
     'users:read',
     'users:update',
     'categories:write',
     'tags:write',
-    'comments:delete:own',
     'comments:delete:all',
     'api_keys:write',
   ],
-  author: [
-    'posts:create',
-    'posts:read:own',
-    'posts:update:own',
-    'posts:delete:own',
-    'posts:publish',
-    'comments:delete:own',
-    'api_keys:write',
-  ],
+  user: [],
 }
 
 export function can(role: Role | null | undefined, permission: Permission): boolean {

@@ -5,16 +5,16 @@ import { RoleBadge } from '@/components/dashboard/RoleBadge'
 describe('RoleBadge', () => {
   it('renders Admin badge for admin role', () => {
     render(<RoleBadge role="admin" />)
-    expect(screen.getByText('Admin')).toBeInTheDocument()
+    expect(screen.getByText('Quản trị viên')).toBeInTheDocument()
   })
 
-  it('renders Author badge for author role', () => {
-    render(<RoleBadge role="author" />)
-    expect(screen.getByText('Author')).toBeInTheDocument()
+  it('renders User badge for user role', () => {
+    render(<RoleBadge role="user" />)
+    expect(screen.getByText('Người dùng')).toBeInTheDocument()
   })
 
-  it('renders Author badge for unknown role', () => {
+  it('renders User badge for unknown role', () => {
     render(<RoleBadge role="unknown" />)
-    expect(screen.getByText('Author')).toBeInTheDocument()
+    expect(screen.getByText('Người dùng')).toBeInTheDocument()
   })
 })

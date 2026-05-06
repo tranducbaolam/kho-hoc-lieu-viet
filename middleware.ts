@@ -59,6 +59,24 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/dashboard')) {
     if (!user) return redirectWithCookies('/login')
 
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    const profile = profileData as { role: string } | null
+    if (profile?.role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      url.searchParams.set('error', 'no_admin_access')
+      const redirectResponse = NextResponse.redirect(url)
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+      })
+      return redirectResponse
+    }
+
     // Enforce MFA for users who have it enrolled.
     // Fail-closed: if the AAL lookup fails, redirect to /mfa rather than
     // allowing the request through without MFA verification.
@@ -66,23 +84,18 @@ export async function middleware(request: NextRequest) {
     if (aalError || (aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2')) {
       return redirectWithCookies('/mfa')
     }
-
-    // Protect /dashboard/admin — require admin role
-    if (pathname.startsWith('/dashboard/admin')) {
-      const { data: profileData } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      const profile = profileData as { role: string } | null
-      if (profile?.role !== 'admin') return redirectWithCookies('/dashboard')
-    }
   }
 
   // ── Redirect logged-in users away from auth pages ─────────────────────────
   if (user && (pathname === '/login' || pathname === '/register')) {
-    return redirectWithCookies('/dashboard')
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    const profile = profileData as { role: string } | null
+    return redirectWithCookies(profile?.role === 'admin' ? '/dashboard' : '/')
   }
 
   return supabaseResponse

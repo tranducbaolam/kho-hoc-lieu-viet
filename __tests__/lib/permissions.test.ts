@@ -40,41 +40,17 @@ describe('can', () => {
     expect(can('admin', 'tags:write')).toBe(true)
   })
 
-  it('author can create posts', () => {
-    expect(can('author', 'posts:create')).toBe(true)
-  })
-
-  it('author can read own posts', () => {
-    expect(can('author', 'posts:read:own')).toBe(true)
-  })
-
-  it('author cannot read all posts', () => {
-    expect(can('author', 'posts:read:all')).toBe(false)
-  })
-
-  it('author cannot delete all posts', () => {
-    expect(can('author', 'posts:delete:all')).toBe(false)
-  })
-
-  it('author cannot manage users', () => {
-    expect(can('author', 'users:read')).toBe(false)
-    expect(can('author', 'users:update')).toBe(false)
-  })
-
-  it('author cannot write categories', () => {
-    expect(can('author', 'categories:write')).toBe(false)
-  })
-
-  it('author cannot write tags', () => {
-    expect(can('author', 'tags:write')).toBe(false)
-  })
-
   it('admin can write api keys', () => {
     expect(can('admin', 'api_keys:write')).toBe(true)
   })
 
-  it('author can write api keys', () => {
-    expect(can('author', 'api_keys:write')).toBe(true)
+  it('user cannot create posts', () => {
+    expect(can('user', 'posts:create')).toBe(false)
+  })
+
+  it('user cannot manage users', () => {
+    expect(can('user', 'users:read')).toBe(false)
+    expect(can('user', 'users:update')).toBe(false)
   })
 })
 
@@ -88,16 +64,11 @@ describe('canAccess', () => {
   })
 
   it('returns false when role is missing one permission', () => {
-    expect(canAccess('author', ['posts:create', 'posts:read:all'])).toBe(false)
+    expect(canAccess('user', ['posts:create', 'posts:read:all'])).toBe(false)
   })
 
   it('returns true for empty permissions array', () => {
-    expect(canAccess('author', [])).toBe(true)
-  })
-
-  it('author can access own post permissions', () => {
-    const authorPerms: Permission[] = ['posts:create', 'posts:read:own', 'posts:update:own']
-    expect(canAccess('author', authorPerms)).toBe(true)
+    expect(canAccess('user', [])).toBe(true)
   })
 })
 
@@ -114,11 +85,11 @@ describe('canAny', () => {
   })
 
   it('returns true when role has at least one permission', () => {
-    expect(canAny('author', ['posts:create', 'posts:read:all'])).toBe(true)
+    expect(canAny('admin', ['posts:create', 'posts:read:all'])).toBe(true)
   })
 
   it('returns false when role has none of the permissions', () => {
-    expect(canAny('author', ['users:read', 'users:update', 'tags:write'])).toBe(false)
+    expect(canAny('user', ['users:read', 'users:update', 'tags:write'])).toBe(false)
   })
 
   it('returns false for empty permissions array', () => {

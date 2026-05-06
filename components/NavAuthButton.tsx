@@ -50,6 +50,7 @@ type UserState = { email: string; name: string } | null | undefined
 
 export function NavAuthButton() {
   const [user, setUser] = useState<UserState>(undefined)
+  const [role, setRole] = useState<string | null>(null)
   const [signingOut, setSigningOut] = useState(false)
   const [goingToDashboard, startDashboard] = useTransition()
   const router = useRouter()
@@ -59,10 +60,32 @@ export function NavAuthButton() {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(sessionToUser(session))
+      const uid = session?.user?.id ?? null
+      if (!uid) {
+        setRole(null)
+        return
+      }
+      supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', uid)
+        .single()
+        .then(({ data }) => setRole((data as { role?: string } | null)?.role ?? null))
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(sessionToUser(session))
+      const uid = session?.user?.id ?? null
+      if (!uid) {
+        setRole(null)
+        return
+      }
+      supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', uid)
+        .single()
+        .then(({ data }) => setRole((data as { role?: string } | null)?.role ?? null))
     })
 
     return () => subscription.unsubscribe()
@@ -145,17 +168,21 @@ export function NavAuthButton() {
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuItem
-            className="cursor-pointer gap-2"
-            onClick={handleDashboard}
-            disabled={busy}
-          >
-            {goingToDashboard ? <Loader2 className="size-4 animate-spin" /> : <LayoutDashboard />}
-            Bảng điều khiển
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        {role === 'admin' && (
+          <>
+            <DropdownMenuGroup>
+              <DropdownMenuItem
+                className="cursor-pointer gap-2"
+                onClick={handleDashboard}
+                disabled={busy}
+              >
+                {goingToDashboard ? <Loader2 className="size-4 animate-spin" /> : <LayoutDashboard />}
+                Bảng điều khiển
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuGroup>
           <DropdownMenuItem
             variant="destructive"

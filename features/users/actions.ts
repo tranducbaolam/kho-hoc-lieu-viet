@@ -6,9 +6,9 @@ import { can } from '@/lib/permissions'
 import type { Role } from '@/lib/permissions'
 import { getProfile } from '@/lib/auth/session'
 
-export async function updateUserRole(userId: string, role: 'admin' | 'author') {
+export async function updateUserRole(userId: string, role: 'admin' | 'user') {
   const profile = await getProfile()
-  if (!profile || !can(profile.role as Role, 'users:update')) return { error: 'Unauthorized' }
+  if (!profile || profile.role !== 'admin' || !can(profile.role as Role, 'users:update')) return { error: 'Unauthorized' }
 
   const supabase = createServiceClient()
   const { error } = await supabase

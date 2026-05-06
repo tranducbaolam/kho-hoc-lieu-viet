@@ -39,6 +39,6 @@ export async function requireAuth(): Promise<Profile> {
  */
 export async function requirePermission(permission: Permission): Promise<Profile> {
   const profile = await requireAuth()
-  if (!can(profile.role as Role, permission)) redirect('/dashboard')
+  if (!can(profile.role as Role, permission)) redirect('/')
   return profile
 }

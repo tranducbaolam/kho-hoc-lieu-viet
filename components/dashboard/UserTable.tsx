@@ -17,10 +17,10 @@ export function UserTable({ users, currentUserId }: UserTableProps) {
   const [updating, setUpdating] = useState<string | null>(null)
 
   async function handleRoleChange(userId: string, currentRole: string) {
-    const newRole = currentRole === 'admin' ? 'author' : 'admin'
-    if (!confirm(`Change role to ${newRole}? User must log out and back in for the change to take effect.`)) return
+    const newRole = currentRole === 'admin' ? 'user' : 'admin'
+    if (!confirm(`Đổi vai trò thành "${newRole}"? Người dùng cần đăng xuất và đăng nhập lại để cập nhật hiệu lực.`)) return
     setUpdating(userId)
-    const result = await updateUserRole(userId, newRole as 'admin' | 'author')
+    const result = await updateUserRole(userId, newRole as 'admin' | 'user')
     result.error ? toast.error(result.error) : toast.success(`Role updated to ${newRole}`)
     setUpdating(null)
   }
@@ -77,12 +77,12 @@ export function UserTable({ users, currentUserId }: UserTableProps) {
                   {isAdmin ? (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-violet-50 text-violet-700 border border-violet-100">
                       <span className="w-1.5 h-1.5 rounded-full bg-violet-500" />
-                      Admin
+                      Quản trị viên
                     </span>
                   ) : (
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
                       <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                      Author
+                      Người dùng
                     </span>
                   )}
                 </td>
@@ -101,7 +101,7 @@ export function UserTable({ users, currentUserId }: UserTableProps) {
                       {updating === user.id ? (
                         <><Loader2 className="h-3 w-3 mr-1 animate-spin" />Updating…</>
                       ) : (
-                        isAdmin ? 'Make Author' : 'Make Admin'
+                        isAdmin ? 'Đặt làm người dùng' : 'Đặt làm admin'
                       )}
                     </Button>
                   )}

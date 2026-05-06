@@ -50,7 +50,7 @@ export default function RegisterForm() {
       setNeedsConfirmation(true)
       setLoading(false)
     } else if (result?.success) {
-      router.push('/dashboard')
+      router.push('/')
     }
   }
 
@@ -78,7 +78,9 @@ export default function RegisterForm() {
     <div className="p-8">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Tạo tài khoản</h2>
-        <p className="text-sm text-gray-500 mt-1">Bắt đầu quản lý bài học, lời giải và đề thi.</p>
+        <p className="text-sm text-gray-500 mt-1">
+          Tài khoản người dùng chỉ dùng để bình luận và sử dụng các tiện ích. Không có quyền đăng bài.
+        </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

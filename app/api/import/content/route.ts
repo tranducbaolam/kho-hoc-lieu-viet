@@ -7,7 +7,7 @@ export const runtime = 'nodejs'
 const MAX_FILE_SIZE = 10 * 1024 * 1024
 const ALLOWED_EXTENSIONS = ['html', 'htm']
 
-async function requireAuthorOrAdmin() {
+async function requireAdmin() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return false
@@ -18,7 +18,7 @@ async function requireAuthorOrAdmin() {
     .eq('id', user.id)
     .single()
 
-  return profile?.role === 'admin' || profile?.role === 'author'
+  return profile?.role === 'admin'
 }
 
 function getExtension(fileName: string): string {
@@ -51,7 +51,7 @@ async function extractFromFile(file: File): Promise<{ html: string; warnings: st
 }
 
 export async function POST(req: NextRequest) {
-  const allowed = await requireAuthorOrAdmin()
+  const allowed = await requireAdmin()
   if (!allowed) {
     return NextResponse.json({ errors: ['Unauthorized'] }, { status: 401 })
   }

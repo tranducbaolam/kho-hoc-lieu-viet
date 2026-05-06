@@ -19,8 +19,8 @@ describe('getAdminProfile', () => {
     expect(result).toEqual(profile)
   })
 
-  it('returns null when role is author', async () => {
-    const profile = { id: 'u2', role: 'author', email: 'a@b.com', full_name: 'Author' }
+  it('returns null when role is user', async () => {
+    const profile = { id: 'u2', role: 'user', email: 'a@b.com', full_name: 'User' }
     mockGetProfile.mockResolvedValue(profile as any)
     const result = await getAdminProfile()
     expect(result).toBeNull()

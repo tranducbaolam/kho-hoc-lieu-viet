@@ -58,6 +58,8 @@ export function Sidebar({ profile }: SidebarProps) {
     ? profile.full_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : profile.email[0].toUpperCase()
 
+  const roleLabel = profile.role === 'admin' ? 'Quản trị viên' : 'Người dùng'
+
   const mainItems = navItems.filter((item) => item.show && item.section === 'main')
   const adminItems = navItems.filter((item) => item.show && item.section === 'admin')
 
@@ -148,7 +150,7 @@ export function Sidebar({ profile }: SidebarProps) {
           )}
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-white truncate">{profile.full_name ?? profile.email}</p>
-            <p className="text-xs text-slate-500 capitalize">{profile.role}</p>
+            <p className="text-xs text-slate-500">{roleLabel}</p>
           </div>
         </Link>
         <button

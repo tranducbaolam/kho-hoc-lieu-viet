@@ -80,12 +80,12 @@ describe('requirePermission', () => {
     expect(result).toEqual(fakeProfile)
   })
 
-  it('redirects to /dashboard when user lacks the permission', async () => {
+  it('redirects to / when user lacks the permission', async () => {
     mockCreateClient.mockResolvedValue(makeSupabase('u1') as any)
     mockCan.mockReturnValue(false)
     mockRedirect.mockImplementation(() => { throw new Error('NEXT_REDIRECT') })
     await expect(requirePermission('posts:delete:all')).rejects.toThrow('NEXT_REDIRECT')
-    expect(mockRedirect).toHaveBeenCalledWith('/dashboard')
+    expect(mockRedirect).toHaveBeenCalledWith('/')
   })
 
   it('redirects to /login when not authenticated', async () => {
