@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AlertCircle, Loader2, ShieldCheck } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -18,10 +18,14 @@ export default function MfaChallengePage() {
   const [loading, setLoading] = useState(false)
   const [initializing, setInitializing] = useState(true)
 
-  const supabase = createClient()
+  const supabase = useMemo(() => {
+    if (typeof window === 'undefined') return null
+    return createClient()
+  }, [])
 
   useEffect(() => {
     async function init() {
+      if (!supabase) return
       const { data: factorData, error: factorsErr } = await supabase.auth.mfa.listFactors()
       if (factorsErr || !factorData.totp.length) {
         router.replace('/dashboard')
@@ -48,10 +52,11 @@ export default function MfaChallengePage() {
     }
     init()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [supabase])
 
   async function handleVerify() {
     if (!factorId || !challengeId || code.length !== 6) return
+    if (!supabase) return
     setLoading(true)
     setError(null)
 

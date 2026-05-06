@@ -18,6 +18,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Editor } from '@/components/editor/Editor'
 import { EditorContent } from '@/components/editor/EditorContent'
+import { PostAttachmentsManager } from '@/components/dashboard/PostAttachmentsManager'
 import { createPost, updatePost, publishPost, unpublishPost } from '@/features/posts/actions'
 import type {
   PostWithRelations,
@@ -605,12 +606,12 @@ export function PostEditor({
                 <div className="rounded-lg border border-dashed border-border p-5 bg-muted/20 space-y-3">
                   <Input
                     type="file"
-                    accept=".html,.htm,.docx,.pdf"
+                    accept=".html,.htm"
                     onChange={(event) => handleFileImport(event.target.files?.[0] ?? null)}
                   />
                   {selectedFileInfo && <p className="text-xs text-muted-foreground">{selectedFileInfo}</p>}
                   <p className="text-xs text-muted-foreground">
-                    HTML là định dạng khuyến nghị. DOCX cần kiểm tra lại công thức. PDF chỉ trích xuất tốt nhất có thể và có thể mất bảng, ảnh, công thức.
+                    Chỉ nhập nội dung bài viết từ tệp HTML (.html/.htm). PDF/DOCX dùng làm tài liệu đính kèm để tải về.
                   </p>
                 </div>
               )}
@@ -633,6 +634,10 @@ export function PostEditor({
                 </div>
               )}
             </div>
+
+            {post?.id && (
+              <PostAttachmentsManager postId={post.id} />
+            )}
           </div>
 
           {/* Right: sidebar */}

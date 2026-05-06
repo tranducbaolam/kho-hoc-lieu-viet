@@ -1,29 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sanitizeImportedHtml } from '@/lib/content/sanitize'
-import { extractTextFromPdf } from '@/features/ai-assistant/pdfService'
 
 export const runtime = 'nodejs'
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024
-const ALLOWED_EXTENSIONS = ['html', 'htm', 'docx', 'pdf']
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-}
-
-function textToSimpleHtml(text: string): string {
-  return text
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean)
-    .map((paragraph) => `<p>${escapeHtml(paragraph).replace(/\n/g, '<br />')}</p>`)
-    .join('\n')
-}
+const ALLOWED_EXTENSIONS = ['html', 'htm']
 
 async function requireAuthorOrAdmin() {
   const supabase = await createClient()
@@ -52,9 +34,10 @@ async function extractFromFile(file: File): Promise<{ html: string; warnings: st
     return {
       html: '',
       warnings,
-      errors: extension === 'doc'
-        ? ['Vui lòng chuyển tệp .doc sang .docx hoặc HTML trước khi nhập.']
-        : ['Định dạng tệp không được hỗ trợ. Chỉ nhận .html, .htm, .docx, .pdf.'],
+      errors: [
+        'Định dạng tệp không được hỗ trợ cho nội dung bài viết. Chỉ nhận .html, .htm.',
+        'PDF/DOCX chỉ được dùng làm tài liệu đính kèm để tải về (không trích xuất làm nội dung).',
+      ],
     }
   }
 
@@ -64,25 +47,7 @@ async function extractFromFile(file: File): Promise<{ html: string; warnings: st
 
   const buffer = Buffer.from(await file.arrayBuffer())
 
-  if (extension === 'html' || extension === 'htm') {
-    return { html: buffer.toString('utf8'), warnings, errors }
-  }
-
-  if (extension === 'docx') {
-    const mammoth = await import('mammoth')
-    const result = await mammoth.convertToHtml({ buffer })
-    warnings.push('Công thức từ Word có thể cần kiểm tra lại. Nên dùng LaTeX dạng \\( ... \\) hoặc \\[ ... \\].')
-    warnings.push('Ảnh trong DOCX có thể không được giữ nếu được nhúng dưới dạng dữ liệu không an toàn.')
-    for (const message of result.messages ?? []) {
-      if (message.message) warnings.push(message.message)
-    }
-    return { html: result.value, warnings, errors }
-  }
-
-  const parsed = await extractTextFromPdf(buffer)
-  warnings.push('PDF chỉ được trích xuất tốt nhất có thể; bảng, cột, ảnh và công thức có thể bị mất.')
-  if (parsed.wasTruncated) warnings.push('Nội dung PDF đã bị rút gọn do quá dài.')
-  return { html: textToSimpleHtml(parsed.text), warnings, errors }
+  return { html: buffer.toString('utf8'), warnings, errors }
 }
 
 export async function POST(req: NextRequest) {

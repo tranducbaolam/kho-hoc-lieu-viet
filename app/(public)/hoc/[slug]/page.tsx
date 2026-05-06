@@ -3,12 +3,14 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getPostBySlug } from '@/features/posts/queries'
 import { getChaptersForGradeSubject, getRelatedPosts } from '@/features/education/queries'
+import { getPostAttachments } from '@/features/attachments/queries'
 import { EditorContent } from '@/components/editor/EditorContent'
 import { CommentSection } from '@/features/comments/components/CommentSection'
 import { SubscribeForm } from '@/components/newsletter/SubscribeForm'
 import { ShareButton } from '@/components/ShareButton'
 import { CONTENT_TYPE_LABELS, DIFFICULTY_LABELS } from '@/features/education/types'
 import { EducationPostList } from '@/features/education/components/EducationPostList'
+import { PublicAttachmentsSection } from '@/features/attachments/components/PublicAttachmentsSection'
 
 export const revalidate = 3600
 
@@ -37,9 +39,10 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
   const post = await getPostBySlug(slug)
   if (!post) notFound()
 
-  const [relatedPosts, siblingChapters] = await Promise.all([
+  const [relatedPosts, siblingChapters, attachments] = await Promise.all([
     getRelatedPosts(post, 6),
     post.grade_id && post.subject_id ? getChaptersForGradeSubject(post.grade_id, post.subject_id) : Promise.resolve([]),
+    getPostAttachments(post.id),
   ])
 
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/+$/, '')
@@ -108,7 +111,34 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
               </div>
             </div>
 
+            {post.content_type === 'exam' && (
+              <PublicAttachmentsSection
+                prominent
+                attachments={attachments.map((a) => ({
+                  id: a.id,
+                  file_name: a.file_name,
+                  file_url: a.file_url,
+                  description: a.description,
+                  file_size: a.file_size,
+                  file_type: a.file_type,
+                }))}
+              />
+            )}
+
             <EditorContent content={post.content ?? ''} />
+
+            {post.content_type !== 'exam' && (
+              <PublicAttachmentsSection
+                attachments={attachments.map((a) => ({
+                  id: a.id,
+                  file_name: a.file_name,
+                  file_url: a.file_url,
+                  description: a.description,
+                  file_size: a.file_size,
+                  file_type: a.file_type,
+                }))}
+              />
+            )}
 
             {post.tags.length > 0 && (
               <div className="mt-10 flex flex-wrap gap-2">
