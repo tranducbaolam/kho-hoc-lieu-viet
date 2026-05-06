@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -12,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { CHECK_EMAIL_VERIFICATION_MESSAGE } from '@/lib/auth/emailVerification'
 
 const registerSchema = z.object({
   full_name: z.string().min(2, 'Tên cần ít nhất 2 ký tự'),
@@ -26,7 +26,6 @@ const registerSchema = z.object({
 type RegisterFormValues = z.infer<typeof registerSchema>
 
 export default function RegisterForm() {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
@@ -49,8 +48,6 @@ export default function RegisterForm() {
     } else if (result?.needsConfirmation) {
       setNeedsConfirmation(true)
       setLoading(false)
-    } else if (result?.success) {
-      router.push('/')
     }
   }
 
@@ -62,7 +59,7 @@ export default function RegisterForm() {
         </div>
         <h2 className="text-xl font-bold text-gray-900 mb-2">Kiểm tra email</h2>
         <p className="text-gray-500 text-sm mb-6">
-          Chúng tôi đã gửi liên kết xác nhận. Hãy mở email để kích hoạt tài khoản.
+          {CHECK_EMAIL_VERIFICATION_MESSAGE}
         </p>
         <Link
           href="/login"
@@ -79,7 +76,7 @@ export default function RegisterForm() {
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Tạo tài khoản</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Tài khoản người dùng chỉ dùng để bình luận và sử dụng các tiện ích. Không có quyền đăng bài.
+          Tài khoản người dùng dùng để bình luận và sử dụng các tiện ích. Quyền quản trị vẫn do admin cấp riêng.
         </p>
       </div>
 

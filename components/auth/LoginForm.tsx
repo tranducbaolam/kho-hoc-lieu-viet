@@ -8,7 +8,6 @@ import { z } from 'zod'
 import Link from 'next/link'
 import { AlertCircle, Loader2, Mail, Lock } from 'lucide-react'
 import { login } from '@/app/(auth)/login/actions'
-import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -25,7 +24,6 @@ export default function LoginForm() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [oauthLoading, setOauthLoading] = useState(false)
 
   const { register, handleSubmit, clearErrors, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -50,49 +48,7 @@ export default function LoginForm() {
     <div className="p-8">
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Đăng nhập</h2>
-        <p className="text-sm text-gray-500 mt-1">Đăng nhập để bình luận và sử dụng các tiện ích.</p>
-      </div>
-
-      <div className="space-y-3 mb-6">
-        <Button
-          type="button"
-          variant="outline"
-          disabled={oauthLoading || loading}
-          className="w-full h-10"
-          onClick={async () => {
-            setError(null)
-            setOauthLoading(true)
-            try {
-              const supabase = createClient()
-              const { error: oauthErr } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                  redirectTo: `${window.location.origin}/auth/callback`,
-                },
-              })
-              if (oauthErr) setError(oauthErr.message)
-            } finally {
-              setOauthLoading(false)
-            }
-          }}
-        >
-          {oauthLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Đang chuyển hướng...
-            </>
-          ) : (
-            'Đăng nhập bằng Google'
-          )}
-        </Button>
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t" />
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-white px-2 text-muted-foreground">hoặc</span>
-          </div>
-        </div>
+        <p className="text-sm text-gray-500 mt-1">Đăng nhập bằng email và mật khẩu để sử dụng tài khoản.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -147,7 +103,7 @@ export default function LoginForm() {
 
         <Button
           type="submit"
-          disabled={loading || oauthLoading}
+          disabled={loading}
           className="w-full h-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-sm shadow-blue-500/20 transition-all duration-200 hover:shadow-md hover:shadow-blue-500/20 hover:-translate-y-px active:translate-y-0"
         >
           {loading ? (

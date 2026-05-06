@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import type { Profile } from '@/lib/supabase/types'
+import { isEmailVerified } from '@/lib/auth/emailVerification'
 import { AuthContext } from './AuthContext'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -23,27 +24,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(data)
   }
 
+  async function applySession(nextSession: Session | null) {
+    if (!nextSession?.user) {
+      setSession(null)
+      setUser(null)
+      setProfile(null)
+      return
+    }
+
+    if (!isEmailVerified(nextSession.user)) {
+      setSession(null)
+      setUser(null)
+      setProfile(null)
+      await supabase.auth.signOut()
+      return
+    }
+
+    setSession(nextSession)
+    setUser(nextSession.user)
+    await loadProfile(nextSession.user.id)
+  }
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        loadProfile(session.user.id).finally(() => setLoading(false))
-      } else {
-        setLoading(false)
-      }
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      await applySession(session)
+      setLoading(false)
     })
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        await loadProfile(session.user.id)
-      } else {
-        setProfile(null)
-      }
+      await applySession(session)
       setLoading(false)
     })
 

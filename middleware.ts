@@ -1,5 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isEmailVerified } from '@/lib/auth/emailVerification'
 
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -25,18 +26,14 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // Refresh session — required for @supabase/ssr
   const {
     data: { user },
   } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
 
-  // Helper: build a redirect that carries any auth cookie updates from supabaseResponse.
-  // Without this, session-refresh cookies written by getUser() would be lost on redirects.
   function redirectWithCookies(destination: string): NextResponse {
-    const url = request.nextUrl.clone()
-    url.pathname = destination
+    const url = new URL(destination, request.url)
     const redirectResponse = NextResponse.redirect(url)
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
@@ -44,18 +41,23 @@ export async function middleware(request: NextRequest) {
     return redirectResponse
   }
 
-  // ── /mfa page ──────────────────────────────────────────────────────────────
+  if (user && !isEmailVerified(user)) {
+    await supabase.auth.signOut()
+    if (pathname.startsWith('/dashboard') || pathname === '/mfa') {
+      return redirectWithCookies('/login?error=email_not_confirmed')
+    }
+    return supabaseResponse
+  }
+
   if (pathname === '/mfa') {
     if (!user) return redirectWithCookies('/login')
 
-    // Already completed MFA — send to dashboard
     const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
     if (aal?.currentLevel === 'aal2') return redirectWithCookies('/dashboard')
 
     return supabaseResponse
   }
 
-  // ── /dashboard routes ──────────────────────────────────────────────────────
   if (pathname.startsWith('/dashboard')) {
     if (!user) return redirectWithCookies('/login')
 
@@ -77,16 +79,12 @@ export async function middleware(request: NextRequest) {
       return redirectResponse
     }
 
-    // Enforce MFA for users who have it enrolled.
-    // Fail-closed: if the AAL lookup fails, redirect to /mfa rather than
-    // allowing the request through without MFA verification.
     const { data: aal, error: aalError } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel()
     if (aalError || (aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2')) {
       return redirectWithCookies('/mfa')
     }
   }
 
-  // ── Redirect logged-in users away from auth pages ─────────────────────────
   if (user && (pathname === '/login' || pathname === '/register')) {
     const { data: profileData } = await supabase
       .from('profiles')

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { AuthProvider } from '@/features/auth/context/AuthProvider'
 import { AIAssistantShell } from '@/components/ai-assistant/AIAssistantShell'
 import { Toaster } from 'sonner'
+import { isEmailVerified } from '@/lib/auth/emailVerification'
 
 export default async function AIAssistantLayout({
   children,
@@ -11,7 +12,7 @@ export default async function AIAssistantLayout({
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user || !isEmailVerified(user)) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')

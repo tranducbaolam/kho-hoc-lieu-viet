@@ -4,6 +4,7 @@ import { getCommentsByPost } from '../queries'
 import { CommentForm } from './CommentForm'
 import { CommentList } from './CommentList'
 import type { Role } from '@/lib/permissions'
+import { isEmailVerified } from '@/lib/auth/emailVerification'
 
 interface CommentSectionProps {
   postId: string
@@ -15,7 +16,7 @@ export async function CommentSection({ postId, postSlug }: CommentSectionProps) 
   const { data: { user } } = await supabase.auth.getUser()
 
   let currentProfile: { id: string; full_name: string | null; role: string } | null = null
-  if (user) {
+  if (user && isEmailVerified(user)) {
     const { data } = await supabase
       .from('profiles')
       .select('id, full_name, role')

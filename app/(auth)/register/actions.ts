@@ -30,11 +30,10 @@ export async function register(formData: FormData) {
     return { error: error.message }
   }
 
-  // If no session, email confirmation is required
-  if (!authData.session) {
-    return { needsConfirmation: true }
+  if (authData.session) {
+    await supabase.auth.signOut()
   }
 
   revalidatePath('/', 'layout')
-  return { success: true }
+  return { needsConfirmation: true }
 }

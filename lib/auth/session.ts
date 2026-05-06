@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { can } from '@/lib/permissions'
 import type { Permission, Role } from '@/lib/permissions'
 import type { Profile } from '@/lib/supabase/types'
+import { isEmailVerified } from './emailVerification'
 
 /**
  * Returns the current user's full profile, or null if not authenticated.
@@ -12,6 +13,7 @@ export async function getProfile(): Promise<Profile | null> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
+  if (!isEmailVerified(user)) return null
 
   const { data: profile } = await supabase
     .from('profiles')

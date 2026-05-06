@@ -9,20 +9,11 @@ vi.mock('@/app/(auth)/login/actions', () => ({
   login: vi.fn(),
 }))
 
-vi.mock('@/lib/supabase/client', () => ({
-  createClient: () => ({
-    auth: {
-      signInWithOAuth: vi.fn().mockResolvedValue({ data: {}, error: null }),
-    },
-  }),
-}))
-
 import LoginForm from '@/components/auth/LoginForm'
 
-describe('LoginForm (Google OAuth)', () => {
-  it('shows Google login button', () => {
+describe('LoginForm Google OAuth', () => {
+  it('does not show Google login button', () => {
     render(<LoginForm />)
-    expect(screen.getByRole('button', { name: 'Đăng nhập bằng Google' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /google/i })).not.toBeInTheDocument()
   })
 })
-

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Session } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
+import { isEmailVerified } from '@/lib/auth/emailVerification'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -37,7 +38,7 @@ function getInitials(name: string): string {
 }
 
 function sessionToUser(session: Session | null) {
-  if (!session) return null
+  if (!session?.user || !isEmailVerified(session.user)) return null
   const email = session.user.email ?? ''
   const name =
     session.user.user_metadata?.full_name ??
@@ -58,34 +59,29 @@ export function NavAuthButton() {
   useEffect(() => {
     const supabase = createClient()
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(sessionToUser(session))
+    async function loadSessionState(session: Session | null) {
+      const verifiedUser = sessionToUser(session)
+      setUser(verifiedUser)
       const uid = session?.user?.id ?? null
-      if (!uid) {
+      if (!uid || !verifiedUser) {
         setRole(null)
+        if (uid) await supabase.auth.signOut()
         return
       }
-      supabase
+      const { data } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', uid)
         .single()
-        .then(({ data }) => setRole((data as { role?: string } | null)?.role ?? null))
+      setRole((data as { role?: string } | null)?.role ?? null)
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      void loadSessionState(session)
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(sessionToUser(session))
-      const uid = session?.user?.id ?? null
-      if (!uid) {
-        setRole(null)
-        return
-      }
-      supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', uid)
-        .single()
-        .then(({ data }) => setRole((data as { role?: string } | null)?.role ?? null))
+      void loadSessionState(session)
     })
 
     return () => subscription.unsubscribe()

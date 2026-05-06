@@ -22,12 +22,26 @@ const mockCreateClient = vi.mocked(createClient)
 const mockCan = vi.mocked(can)
 
 const fakeProfile = { id: 'u1', role: 'admin', email: 'a@b.com', full_name: 'Admin' }
+const confirmedAt = '2026-05-07T00:00:00.000Z'
 
-function makeSupabase(userId: string | null, profile: unknown = fakeProfile) {
+function makeSupabase(
+  userId: string | null,
+  profile: unknown = fakeProfile,
+  userOverrides: Record<string, unknown> = {},
+) {
   return {
     auth: {
       getUser: vi.fn().mockResolvedValue({
-        data: { user: userId ? { id: userId } : null },
+        data: {
+          user: userId
+            ? {
+                id: userId,
+                email_confirmed_at: confirmedAt,
+                confirmed_at: confirmedAt,
+                ...userOverrides,
+              }
+            : null,
+        },
       }),
     },
     from: vi.fn().mockReturnValue({
@@ -54,6 +68,15 @@ describe('getProfile', () => {
     const result = await getProfile()
     expect(result).toEqual(fakeProfile)
   })
+
+  it('returns null for an authenticated user without confirmed email', async () => {
+    mockCreateClient.mockResolvedValue(makeSupabase('u1', fakeProfile, {
+      email_confirmed_at: null,
+      confirmed_at: null,
+    }) as any)
+    const result = await getProfile()
+    expect(result).toBeNull()
+  })
 })
 
 describe('requireAuth', () => {
@@ -66,6 +89,16 @@ describe('requireAuth', () => {
   it('redirects to /login when not authenticated', async () => {
     mockCreateClient.mockResolvedValue(makeSupabase(null) as any)
     // redirect() in Next.js throws internally; we mock it as a no-op so requireAuth() continues
+    mockRedirect.mockImplementation(() => { throw new Error('NEXT_REDIRECT') })
+    await expect(requireAuth()).rejects.toThrow('NEXT_REDIRECT')
+    expect(mockRedirect).toHaveBeenCalledWith('/login')
+  })
+
+  it('redirects to /login when authenticated user has not confirmed email', async () => {
+    mockCreateClient.mockResolvedValue(makeSupabase('u1', fakeProfile, {
+      email_confirmed_at: null,
+      confirmed_at: null,
+    }) as any)
     mockRedirect.mockImplementation(() => { throw new Error('NEXT_REDIRECT') })
     await expect(requireAuth()).rejects.toThrow('NEXT_REDIRECT')
     expect(mockRedirect).toHaveBeenCalledWith('/login')
