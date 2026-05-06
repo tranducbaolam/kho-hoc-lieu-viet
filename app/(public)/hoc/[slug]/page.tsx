@@ -11,6 +11,8 @@ import { ShareButton } from '@/components/ShareButton'
 import { CONTENT_TYPE_LABELS, DIFFICULTY_LABELS } from '@/features/education/types'
 import { EducationPostList } from '@/features/education/components/EducationPostList'
 import { PublicAttachmentsSection } from '@/features/attachments/components/PublicAttachmentsSection'
+import { createClient } from '@/lib/supabase/server'
+import { isEmailVerified } from '@/lib/auth/emailVerification'
 
 export const revalidate = 3600
 
@@ -39,12 +41,16 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
   const post = await getPostBySlug(slug)
   if (!post) notFound()
 
-  const [relatedPosts, siblingChapters, attachments] = await Promise.all([
+  const supabase = await createClient()
+  const [authResult, relatedPosts, siblingChapters, attachments] = await Promise.all([
+    supabase.auth.getUser(),
     getRelatedPosts(post, 6),
     post.grade_id && post.subject_id ? getChaptersForGradeSubject(post.grade_id, post.subject_id) : Promise.resolve([]),
     getPostAttachments(post.id),
   ])
 
+  const isAuthenticated = isEmailVerified(authResult.data.user)
+  const currentPath = `/hoc/${post.slug}`
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/+$/, '')
   const contentTypeLabel = post.content_type && post.content_type in CONTENT_TYPE_LABELS
     ? CONTENT_TYPE_LABELS[post.content_type as keyof typeof CONTENT_TYPE_LABELS]
@@ -114,6 +120,8 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
             {post.content_type === 'exam' && (
               <PublicAttachmentsSection
                 prominent
+                isAuthenticated={isAuthenticated}
+                currentPath={currentPath}
                 attachments={attachments.map((a) => ({
                   id: a.id,
                   file_name: a.file_name,
@@ -129,6 +137,8 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
 
             {post.content_type !== 'exam' && (
               <PublicAttachmentsSection
+                isAuthenticated={isAuthenticated}
+                currentPath={currentPath}
                 attachments={attachments.map((a) => ({
                   id: a.id,
                   file_name: a.file_name,

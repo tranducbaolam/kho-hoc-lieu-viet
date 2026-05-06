@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { getSafeInternalPath } from '@/lib/auth/redirect'
 
 const loginSchema = z.object({
   email: z.string().email('Email không hợp lệ'),
@@ -20,7 +21,7 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
-export default function LoginForm() {
+export default function LoginForm({ nextPath }: { nextPath?: string | null }) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -40,7 +41,7 @@ export default function LoginForm() {
       setError(result.error)
       setLoading(false)
     } else if (result?.success) {
-      router.push('/dashboard')
+      router.push(getSafeInternalPath(nextPath) ?? '/dashboard')
     }
   }
 

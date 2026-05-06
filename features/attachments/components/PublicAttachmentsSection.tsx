@@ -9,8 +9,20 @@ export interface PublicAttachment {
   file_type: string | null
 }
 
-export function PublicAttachmentsSection({ attachments, prominent }: { attachments: PublicAttachment[]; prominent?: boolean }) {
+export function PublicAttachmentsSection({
+  attachments,
+  prominent,
+  isAuthenticated,
+  currentPath,
+}: {
+  attachments: PublicAttachment[]
+  prominent?: boolean
+  isAuthenticated: boolean
+  currentPath: string
+}) {
   if (!attachments.length) return null
+
+  const loginHref = `/login?next=${encodeURIComponent(currentPath)}`
 
   return (
     <section className={prominent ? 'mt-6 rounded-xl border bg-white p-5' : 'mt-10 rounded-xl border bg-white p-5'}>
@@ -32,10 +44,10 @@ export function PublicAttachmentsSection({ attachments, prominent }: { attachmen
               </div>
               <div className="shrink-0">
                 <a
-                  href={att.file_url}
+                  href={isAuthenticated ? att.file_url : loginHref}
                   className="inline-flex items-center justify-center h-9 px-4 rounded-md bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors"
                 >
-                  Tải về
+                  {isAuthenticated ? 'Tải xuống' : 'Đăng nhập để tải'}
                 </a>
               </div>
             </div>
@@ -45,4 +57,3 @@ export function PublicAttachmentsSection({ attachments, prominent }: { attachmen
     </section>
   )
 }
-
