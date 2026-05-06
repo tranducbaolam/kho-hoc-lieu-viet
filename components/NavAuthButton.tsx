@@ -77,13 +77,13 @@ export function NavAuthButton() {
           href="/login"
           className="text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
         >
-          Login
+          Đăng nhập
         </Link>
         <Link
           href="/register"
           className="inline-flex items-center justify-center bg-foreground text-background h-8 px-4 text-xs font-semibold uppercase tracking-wider hover:opacity-80 transition-opacity"
         >
-          Create Account
+          Tạo tài khoản
         </Link>
       </div>
     )
@@ -112,7 +112,7 @@ export function NavAuthButton() {
     <DropdownMenu>
       <DropdownMenuTrigger
         className="rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-foreground/30 focus-visible:ring-offset-2 transition-opacity disabled:opacity-50"
-        aria-label="Account menu"
+        aria-label="Menu tài khoản"
         disabled={busy}
       >
         <div
@@ -152,7 +152,7 @@ export function NavAuthButton() {
             disabled={busy}
           >
             {goingToDashboard ? <Loader2 className="size-4 animate-spin" /> : <LayoutDashboard />}
-            Dashboard
+            Bảng điều khiển
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -164,7 +164,7 @@ export function NavAuthButton() {
             disabled={busy}
           >
             {signingOut ? <Loader2 className="size-4 animate-spin" /> : <LogOut />}
-            Sign out
+            Đăng xuất
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

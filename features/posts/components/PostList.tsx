@@ -9,8 +9,8 @@ export function PostList({ posts }: PostListProps) {
   if (posts.length === 0) {
     return (
       <div className="text-center py-16 space-y-2">
-        <p className="text-lg font-medium text-foreground">No posts yet.</p>
-        <p className="text-sm text-muted-foreground">Check back soon for new articles.</p>
+        <p className="text-lg font-medium text-foreground">Chưa có bài viết.</p>
+        <p className="text-sm text-muted-foreground">Vui lòng quay lại sau.</p>
       </div>
     )
   }

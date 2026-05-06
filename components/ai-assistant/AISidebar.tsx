@@ -100,14 +100,14 @@ export function AISidebar({ onClose }: { onClose?: () => void }) {
             className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 transition-colors mb-3"
           >
             <ArrowLeft className="h-3 w-3" />
-            Back to Dashboard
+            Về bảng điều khiển
           </Link>
           <Button
             onClick={() => { setModalOpen(true); onClose?.() }}
             className="w-full h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white border-0"
           >
             <Plus className="h-3.5 w-3.5 mr-1.5" />
-            New Chat
+            Tạo cuộc trò chuyện
           </Button>
         </div>
 

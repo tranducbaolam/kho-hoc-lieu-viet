@@ -4,7 +4,7 @@ import { FileText, Users, Eye, TrendingUp, PenLine, ArrowUpRight } from 'lucide-
 import Link from 'next/link'
 import { getProfile } from '@/lib/auth/session'
 
-export const metadata: Metadata = { title: 'Dashboard' }
+export const metadata: Metadata = { title: 'Tổng quan' }
 
 export default async function DashboardPage() {
   const profile = await getProfile()
@@ -30,33 +30,33 @@ export default async function DashboardPage() {
 
   const stats = [
     {
-      title: 'Total Posts',
+      title: 'Tổng bài viết',
       value: totalPosts ?? 0,
       icon: FileText,
       gradient: 'from-blue-500 to-blue-600',
       bg: 'bg-blue-50',
       iconColor: 'text-blue-600',
-      trend: `${draftCount} draft${draftCount !== 1 ? 's' : ''}`,
+      trend: `${draftCount} bản nháp`,
       show: true,
     },
     {
-      title: 'Published',
+      title: 'Đã đăng',
       value: publishedPosts ?? 0,
       icon: Eye,
       gradient: 'from-emerald-500 to-emerald-600',
       bg: 'bg-emerald-50',
       iconColor: 'text-emerald-600',
-      trend: 'Live & visible',
+      trend: 'Đang hiển thị công khai',
       show: true,
     },
     {
-      title: 'Total Users',
+      title: 'Người dùng',
       value: totalUsers ?? 0,
       icon: Users,
       gradient: 'from-violet-500 to-violet-600',
       bg: 'bg-violet-50',
       iconColor: 'text-violet-600',
-      trend: 'Active members',
+      trend: 'Tài khoản đang hoạt động',
       show: isAdmin,
     },
   ]
@@ -66,15 +66,15 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>
-          <p className="text-sm text-muted-foreground font-medium">Good to see you back</p>
-          <h1 className="text-3xl font-bold tracking-tight mt-0.5">Hello, {firstName} 👋</h1>
+          <p className="text-sm text-muted-foreground font-medium">Chào mừng quay lại</p>
+          <h1 className="text-3xl font-bold tracking-tight mt-0.5">Xin chào, {firstName}</h1>
         </div>
         <Link
           href="/dashboard/posts/new"
           className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium shadow-sm shadow-blue-500/20 hover:shadow-md hover:shadow-blue-500/25 hover:-translate-y-px transition-all duration-200"
         >
           <PenLine className="h-4 w-4" />
-          New Post
+          Thêm bài
         </Link>
       </div>
 
@@ -108,12 +108,12 @@ export default async function DashboardPage() {
 
       {/* Quick actions */}
       <div>
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Quick Actions</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-4">Thao tác nhanh</p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { href: '/dashboard/posts/new', label: 'Write a new post', desc: 'Start from scratch', icon: PenLine, color: 'text-blue-600 bg-blue-50' },
-            { href: '/dashboard/posts', label: 'Manage posts', desc: 'Edit, publish, delete', icon: FileText, color: 'text-emerald-600 bg-emerald-50' },
-            ...(isAdmin ? [{ href: '/dashboard/admin/users', label: 'Manage users', desc: 'Roles & permissions', icon: Users, color: 'text-violet-600 bg-violet-50' }] : []),
+            { href: '/dashboard/posts/new', label: 'Thêm bài mới', desc: 'Soạn bài học, lời giải, đề thi', icon: PenLine, color: 'text-blue-600 bg-blue-50' },
+            { href: '/dashboard/posts', label: 'Quản lý bài viết', desc: 'Sửa, đăng, gỡ đăng, xóa', icon: FileText, color: 'text-emerald-600 bg-emerald-50' },
+            ...(isAdmin ? [{ href: '/dashboard/admin/users', label: 'Quản lý người dùng', desc: 'Vai trò và phân quyền', icon: Users, color: 'text-violet-600 bg-violet-50' }] : []),
           ].map((action) => {
             const Icon = action.icon
             return (

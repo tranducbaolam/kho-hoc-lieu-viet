@@ -6,7 +6,7 @@ import { ApiReferenceSection } from '@/components/developer/ApiReferenceSection'
 import { requirePermission } from '@/lib/auth/session'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-export const metadata: Metadata = { title: 'Developer Settings' }
+export const metadata: Metadata = { title: 'Nhà phát triển' }
 
 export default async function DeveloperPage() {
   const profile = await requirePermission('api_keys:write')
@@ -16,17 +16,17 @@ export default async function DeveloperPage() {
   return (
     <div className="p-8 space-y-6 animate-page">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Developer Settings</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Nhà phát triển</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Manage API keys for external integrations
+          Quản lý API key và tích hợp bên ngoài
         </p>
       </div>
 
       <Tabs defaultValue="api-keys">
         <TabsList>
           <TabsTrigger value="api-keys">API Keys</TabsTrigger>
-          <TabsTrigger value="llm-providers">LLM Providers</TabsTrigger>
-          <TabsTrigger value="api-reference">API Reference</TabsTrigger>
+          <TabsTrigger value="llm-providers">Nhà cung cấp LLM</TabsTrigger>
+          <TabsTrigger value="api-reference">Tài liệu API</TabsTrigger>
         </TabsList>
 
         <TabsContent value="api-keys" className="mt-6">

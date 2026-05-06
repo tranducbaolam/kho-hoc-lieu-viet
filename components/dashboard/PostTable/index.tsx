@@ -5,7 +5,7 @@ import { Search, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { publishPost, unpublishPost, deletePost } from '@/features/posts/actions'
 import type { PostWithRelations } from '@/features/posts/types'
-import { filterAndSort, getCategories, type SortField, type SortDir } from './utils'
+import { filterAndSort, getCategories, getEducationFilterOptions, type SortField, type SortDir } from './utils'
 import { PostEmptyState } from './EmptyState'
 import { PostTableToolbar } from './Toolbar'
 import { PostRow } from './PostRow'
@@ -27,19 +27,26 @@ export function PostTable({ posts }: PostTableProps) {
   const [sortField, setSortField] = useState<SortField>('updated_at')
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [contentTypeFilter, setContentTypeFilter] = useState<string | null>(null)
+  const [gradeFilter, setGradeFilter] = useState<string | null>(null)
+  const [subjectFilter, setSubjectFilter] = useState<string | null>(null)
+  const [chapterFilter, setChapterFilter] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
 
   const categories = useMemo(() => getCategories(posts), [posts])
+  const educationFilters = useMemo(() => getEducationFilterOptions(posts), [posts])
   const filtered = useMemo(
-    () => filterAndSort(posts, search, categoryFilter, sortField, sortDir),
-    [posts, search, categoryFilter, sortField, sortDir]
+    () => filterAndSort(posts, search, categoryFilter, statusFilter, contentTypeFilter, gradeFilter, subjectFilter, chapterFilter, sortField, sortDir),
+    [posts, search, categoryFilter, statusFilter, contentTypeFilter, gradeFilter, subjectFilter, chapterFilter, sortField, sortDir]
   )
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
   const safePage = Math.min(page, totalPages)
   const paginated = filtered.slice((safePage - 1) * pageSize, safePage * pageSize)
-  const hasFilters = search.trim() !== '' || categoryFilter !== null
+  const hasFilters = search.trim() !== '' || categoryFilter !== null || statusFilter !== null ||
+    contentTypeFilter !== null || gradeFilter !== null || subjectFilter !== null || chapterFilter !== null
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -53,21 +60,35 @@ export function PostTable({ posts }: PostTableProps) {
 
   function handleSearch(val: string) { setSearch(val); setPage(1) }
   function handleCategoryFilter(id: string | null) { setCategoryFilter(id); setPage(1) }
-  function handleClearFilters() { setSearch(''); setCategoryFilter(null); setPage(1) }
+  function handleStatusFilter(value: string | null) { setStatusFilter(value); setPage(1) }
+  function handleContentTypeFilter(value: string | null) { setContentTypeFilter(value); setPage(1) }
+  function handleGradeFilter(value: string | null) { setGradeFilter(value); setPage(1) }
+  function handleSubjectFilter(value: string | null) { setSubjectFilter(value); setPage(1) }
+  function handleChapterFilter(value: string | null) { setChapterFilter(value); setPage(1) }
+  function handleClearFilters() {
+    setSearch('')
+    setCategoryFilter(null)
+    setStatusFilter(null)
+    setContentTypeFilter(null)
+    setGradeFilter(null)
+    setSubjectFilter(null)
+    setChapterFilter(null)
+    setPage(1)
+  }
   function handlePageSizeChange(size: number) { setPageSize(size); setPage(1) }
 
   async function handlePublish(id: string) {
     const result = await publishPost(id)
-    result.error ? toast.error(result.error) : toast.success('Post published')
+    result.error ? toast.error(result.error) : toast.success('Đã đăng bài')
   }
 
   async function handleUnpublish(id: string) {
     const result = await unpublishPost(id)
-    result.error ? toast.error(result.error) : toast.success('Post unpublished')
+    result.error ? toast.error(result.error) : toast.success('Đã chuyển về bản nháp')
   }
 
   async function handleDelete(id: string, title: string) {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return
+    if (!confirm(`Xóa "${title}"? Thao tác này không thể hoàn tác.`)) return
     try {
       const result = await deletePost(id)
       if (result?.error) {
@@ -91,6 +112,19 @@ export function PostTable({ posts }: PostTableProps) {
         categories={categories}
         categoryFilter={categoryFilter}
         onCategoryFilter={handleCategoryFilter}
+        statusFilter={statusFilter}
+        onStatusFilter={handleStatusFilter}
+        contentTypeFilter={contentTypeFilter}
+        onContentTypeFilter={handleContentTypeFilter}
+        grades={educationFilters.grades}
+        gradeFilter={gradeFilter}
+        onGradeFilter={handleGradeFilter}
+        subjects={educationFilters.subjects}
+        subjectFilter={subjectFilter}
+        onSubjectFilter={handleSubjectFilter}
+        chapters={educationFilters.chapters}
+        chapterFilter={chapterFilter}
+        onChapterFilter={handleChapterFilter}
         hasFilters={hasFilters}
         onClearFilters={handleClearFilters}
       />
@@ -99,8 +133,8 @@ export function PostTable({ posts }: PostTableProps) {
         {paginated.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Search className="h-8 w-8 text-gray-200 mb-3" />
-            <p className="text-sm font-medium text-gray-900">No posts found</p>
-            <p className="text-xs text-muted-foreground mt-1">Try adjusting your search or filters</p>
+            <p className="text-sm font-medium text-gray-900">Không tìm thấy bài viết</p>
+            <p className="text-xs text-muted-foreground mt-1">Thử thay đổi từ khóa hoặc bộ lọc</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -109,26 +143,36 @@ export function PostTable({ posts }: PostTableProps) {
                 <tr className="border-b border-gray-100 bg-gray-50/70">
                   <th className="text-left px-5 py-3.5">
                     <button className={thClass} onClick={() => handleSort('title')}>
-                      Title <SortIcon field="title" sortField={sortField} sortDir={sortDir} />
+                      Tiêu đề <SortIcon field="title" sortField={sortField} sortDir={sortDir} />
+                    </button>
+                  </th>
+                  <th className="text-left px-5 py-3.5 hidden xl:table-cell">
+                    <button className={thClass} onClick={() => handleSort('content_type')}>
+                      Loại <SortIcon field="content_type" sortField={sortField} sortDir={sortDir} />
+                    </button>
+                  </th>
+                  <th className="text-left px-5 py-3.5 hidden xl:table-cell">
+                    <button className={thClass} onClick={() => handleSort('grade')}>
+                      Lớp / Môn / Chương <SortIcon field="grade" sortField={sortField} sortDir={sortDir} />
                     </button>
                   </th>
                   <th className="text-left px-5 py-3.5 hidden md:table-cell">
                     <button className={thClass} onClick={() => handleSort('author')}>
-                      Author <SortIcon field="author" sortField={sortField} sortDir={sortDir} />
+                      Tác giả <SortIcon field="author" sortField={sortField} sortDir={sortDir} />
                     </button>
                   </th>
                   <th className="text-left px-5 py-3.5 hidden sm:table-cell">
                     <button className={thClass} onClick={() => handleSort('status')}>
-                      Status <SortIcon field="status" sortField={sortField} sortDir={sortDir} />
+                      Trạng thái <SortIcon field="status" sortField={sortField} sortDir={sortDir} />
                     </button>
                   </th>
                   <th className="text-left px-5 py-3.5 hidden lg:table-cell">
                     <button className={thClass} onClick={() => handleSort('updated_at')}>
-                      Updated <SortIcon field="updated_at" sortField={sortField} sortDir={sortDir} />
+                      Cập nhật <SortIcon field="updated_at" sortField={sortField} sortDir={sortDir} />
                     </button>
                   </th>
                   <th className="text-right px-5 py-3.5 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Actions
+                    Thao tác
                   </th>
                 </tr>
               </thead>

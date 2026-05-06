@@ -105,6 +105,114 @@ export type Database = {
           },
         ]
       }
+      education_chapters: {
+        Row: {
+          chapter_order: number | null
+          created_at: string | null
+          description: string | null
+          grade_id: string | null
+          id: string
+          name: string
+          slug: string
+          subject_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          chapter_order?: number | null
+          created_at?: string | null
+          description?: string | null
+          grade_id?: string | null
+          id?: string
+          name: string
+          slug: string
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          chapter_order?: number | null
+          created_at?: string | null
+          description?: string | null
+          grade_id?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          subject_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "education_chapters_grade_id_fkey"
+            columns: ["grade_id"]
+            isOneToOne: false
+            referencedRelation: "education_grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "education_chapters_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "education_subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      education_grades: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          level_order: number
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          level_order: number
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          level_order?: number
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      education_subjects: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          name: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       post_tags: {
         Row: {
           post_id: string
@@ -139,48 +247,78 @@ export type Database = {
         Row: {
           author_id: string | null
           category_id: string | null
+          chapter_id: string | null
           content: string | null
+          content_type: string | null
           cover_image: string | null
           created_at: string | null
+          difficulty: string | null
+          exam_type: string | null
+          exam_year: number | null
           excerpt: string | null
+          grade_id: string | null
           id: string
+          lesson_order: number | null
           published_at: string | null
+          province: string | null
+          school_name: string | null
           seo_description: string | null
           seo_title: string | null
           slug: string
           status: string
+          subject_id: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
           author_id?: string | null
           category_id?: string | null
+          chapter_id?: string | null
           content?: string | null
+          content_type?: string | null
           cover_image?: string | null
           created_at?: string | null
+          difficulty?: string | null
+          exam_type?: string | null
+          exam_year?: number | null
           excerpt?: string | null
+          grade_id?: string | null
           id?: string
+          lesson_order?: number | null
           published_at?: string | null
+          province?: string | null
+          school_name?: string | null
           seo_description?: string | null
           seo_title?: string | null
           slug: string
           status?: string
+          subject_id?: string | null
           title: string
           updated_at?: string | null
         }
         Update: {
           author_id?: string | null
           category_id?: string | null
+          chapter_id?: string | null
           content?: string | null
+          content_type?: string | null
           cover_image?: string | null
           created_at?: string | null
+          difficulty?: string | null
+          exam_type?: string | null
+          exam_year?: number | null
           excerpt?: string | null
+          grade_id?: string | null
           id?: string
+          lesson_order?: number | null
           published_at?: string | null
+          province?: string | null
+          school_name?: string | null
           seo_description?: string | null
           seo_title?: string | null
           slug?: string
           status?: string
+          subject_id?: string | null
           title?: string
           updated_at?: string | null
         }
@@ -197,6 +335,27 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "education_chapters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_grade_id_fkey"
+            columns: ["grade_id"]
+            isOneToOne: false
+            referencedRelation: "education_grades"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "education_subjects"
             referencedColumns: ["id"]
           },
         ]
@@ -439,3 +598,6 @@ export type Category = Database['public']['Tables']['categories']['Row']
 export type Tag = Database['public']['Tables']['tags']['Row']
 export type PostTag = Database['public']['Tables']['post_tags']['Row']
 export type Comment = Database['public']['Tables']['comments']['Row']
+export type EducationGrade = Database['public']['Tables']['education_grades']['Row']
+export type EducationSubject = Database['public']['Tables']['education_subjects']['Row']
+export type EducationChapter = Database['public']['Tables']['education_chapters']['Row']

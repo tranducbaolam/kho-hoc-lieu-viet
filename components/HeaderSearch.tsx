@@ -24,7 +24,7 @@ export function HeaderSearch() {
     e.preventDefault()
     const q = query.trim()
     if (!q) { collapse(); return }
-    router.push(`/blog?q=${encodeURIComponent(q)}`)
+    router.push(`/tim-kiem?q=${encodeURIComponent(q)}`)
     collapse()
   }
 
@@ -41,8 +41,8 @@ export function HeaderSearch() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search articles…"
-            aria-label="Search articles"
+            placeholder="Tìm bài học..."
+            aria-label="Tìm bài học"
             className="h-8 w-44 border-b border-foreground/30 bg-transparent px-1 text-sm outline-none placeholder:text-muted-foreground focus:border-foreground transition-colors"
             autoComplete="off"
           />

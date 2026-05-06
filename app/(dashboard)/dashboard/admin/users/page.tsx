@@ -3,7 +3,7 @@ import { getAllUsers } from '@/features/users/queries'
 import { UserTable } from '@/components/dashboard/UserTable'
 import { requirePermission } from '@/lib/auth/session'
 
-export const metadata: Metadata = { title: 'Users' }
+export const metadata: Metadata = { title: 'Người dùng' }
 
 export default async function UsersPage() {
   const profile = await requirePermission('users:read')
@@ -13,9 +13,9 @@ export default async function UsersPage() {
   return (
     <div className="p-4 md:p-8 space-y-6 animate-page">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Users</h1>
+        <h1 className="text-2xl font-bold tracking-tight">Người dùng</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          {users.length} user{users.length !== 1 ? 's' : ''} total
+          Tổng cộng {users.length} người dùng
         </p>
       </div>
       <UserTable users={users} currentUserId={profile.id} />

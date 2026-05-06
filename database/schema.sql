@@ -39,6 +39,41 @@ create table if not exists public.tags (
   created_at timestamptz default now()
 );
 
+-- Education Grades
+create table if not exists public.education_grades (
+  id          uuid default gen_random_uuid() primary key,
+  name        text not null,
+  slug        text not null unique,
+  level_order int not null,
+  description text,
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+-- Education Subjects
+create table if not exists public.education_subjects (
+  id          uuid default gen_random_uuid() primary key,
+  name        text not null,
+  slug        text not null unique,
+  description text,
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+-- Education Chapters
+create table if not exists public.education_chapters (
+  id            uuid default gen_random_uuid() primary key,
+  grade_id      uuid references public.education_grades(id) on delete cascade,
+  subject_id    uuid references public.education_subjects(id) on delete cascade,
+  name          text not null,
+  slug          text not null,
+  description   text,
+  chapter_order int default 0,
+  created_at    timestamptz default now(),
+  updated_at    timestamptz default now(),
+  unique (grade_id, subject_id, slug)
+);
+
 -- Posts
 create table if not exists public.posts (
   id              uuid default gen_random_uuid() primary key,
@@ -50,6 +85,16 @@ create table if not exists public.posts (
   status          text not null default 'draft' check (status in ('draft', 'published')),
   author_id       uuid references public.profiles(id) on delete set null,
   category_id     uuid references public.categories(id) on delete set null,
+  content_type    text default 'lesson' check (content_type in ('lesson', 'solution', 'exercise', 'exam', 'news')),
+  grade_id        uuid references public.education_grades(id) on delete set null,
+  subject_id      uuid references public.education_subjects(id) on delete set null,
+  chapter_id      uuid references public.education_chapters(id) on delete set null,
+  lesson_order    int default 0,
+  exam_type       text,
+  exam_year       int,
+  school_name     text,
+  province        text,
+  difficulty      text check (difficulty is null or difficulty in ('easy', 'medium', 'hard', 'advanced')),
   seo_title       text,
   seo_description text,
   published_at    timestamptz,
@@ -73,8 +118,17 @@ create index if not exists posts_category_id_idx on public.posts(category_id);
 create index if not exists posts_status_idx on public.posts(status);
 create index if not exists posts_slug_idx on public.posts(slug);
 create index if not exists posts_published_at_idx on public.posts(published_at desc);
+create index if not exists posts_content_type_idx on public.posts(content_type);
+create index if not exists posts_grade_id_idx on public.posts(grade_id);
+create index if not exists posts_subject_id_idx on public.posts(subject_id);
+create index if not exists posts_chapter_id_idx on public.posts(chapter_id);
+create index if not exists posts_exam_year_idx on public.posts(exam_year);
 create index if not exists categories_slug_idx on public.categories(slug);
 create index if not exists tags_slug_idx on public.tags(slug);
+create index if not exists education_chapters_grade_subject_idx on public.education_chapters(grade_id, subject_id);
+create index if not exists education_grades_slug_idx on public.education_grades(slug);
+create index if not exists education_subjects_slug_idx on public.education_subjects(slug);
+create index if not exists education_chapters_slug_idx on public.education_chapters(slug);
 
 -- ============================================
 -- FUNCTIONS
@@ -132,6 +186,24 @@ create trigger categories_updated_at
   before update on public.categories
   for each row execute function public.handle_updated_at();
 
+-- Auto-update updated_at on education grades
+drop trigger if exists education_grades_updated_at on public.education_grades;
+create trigger education_grades_updated_at
+  before update on public.education_grades
+  for each row execute function public.handle_updated_at();
+
+-- Auto-update updated_at on education subjects
+drop trigger if exists education_subjects_updated_at on public.education_subjects;
+create trigger education_subjects_updated_at
+  before update on public.education_subjects
+  for each row execute function public.handle_updated_at();
+
+-- Auto-update updated_at on education chapters
+drop trigger if exists education_chapters_updated_at on public.education_chapters;
+create trigger education_chapters_updated_at
+  before update on public.education_chapters
+  for each row execute function public.handle_updated_at();
+
 -- ============================================
 -- ENABLE ROW LEVEL SECURITY
 -- ============================================
@@ -141,3 +213,6 @@ alter table public.posts enable row level security;
 alter table public.categories enable row level security;
 alter table public.tags enable row level security;
 alter table public.post_tags enable row level security;
+alter table public.education_grades enable row level security;
+alter table public.education_subjects enable row level security;
+alter table public.education_chapters enable row level security;

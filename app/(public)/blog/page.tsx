@@ -6,8 +6,8 @@ import { PostList } from '@/features/posts/components/PostList'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: 'Articles',
-  description: 'Practical knowledge for engineers who ship.',
+  title: 'Tất cả bài viết',
+  description: 'Danh sách bài học, lời giải, bài tập và đề thi.',
 }
 
 interface BlogPageProps {
@@ -26,10 +26,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     <div className="container max-w-5xl mx-auto py-12 px-4 space-y-10">
       {/* Page header */}
       <div className="space-y-2 border-b pb-8">
-        <p className="text-sm font-medium text-primary uppercase tracking-widest">The Practical Engineer</p>
-        <h1 className="text-4xl font-bold tracking-tight">All Articles</h1>
+        <p className="text-sm font-medium text-primary uppercase tracking-widest">Kho Học Liệu Việt</p>
+        <h1 className="text-4xl font-bold tracking-tight">Tất cả bài viết</h1>
         <p className="text-muted-foreground text-base max-w-xl">
-          Practical knowledge for engineers who ship. Deep dives, guides, and architecture insights.
+          Bài học, lời giải, bài tập và đề thi được hệ thống theo lớp, môn và chuyên đề.
         </p>
       </div>
 
@@ -42,18 +42,18 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               href={`/blog?page=${page - 1}`}
               className="px-5 py-2 border rounded-full text-sm font-medium hover:bg-muted transition-colors shadow-sm"
             >
-              ← Previous
+              ← Trước
             </Link>
           )}
           <span className="px-4 py-2 text-sm text-muted-foreground">
-            Page {page} of {totalPages}
+            Trang {page} / {totalPages}
           </span>
           {page < totalPages && (
             <Link
               href={`/blog?page=${page + 1}`}
               className="px-5 py-2 border rounded-full text-sm font-medium hover:bg-muted transition-colors shadow-sm"
             >
-              Next →
+              Tiếp →
             </Link>
           )}
         </div>

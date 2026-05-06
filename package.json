@@ -1,12 +1,13 @@
 {
-  "name": "nextjs-blog-cms",
+  "name": "kho-hoc-lieu-viet",
   "version": "1.0.0",
-  "description": "A modern blog CMS built with Next.js, Supabase, and TailwindCSS",
+  "description": "A Vietnamese education CMS built with Next.js, Supabase, and TailwindCSS",
   "keywords": [
     "cms",
     "nextjs",
     "supabase",
     "tailwindcss",
+    "education",
     "blog"
   ],
   "homepage": "https://github.com/frank-mendez/nextjs-blog-cms#readme",
@@ -69,7 +70,9 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
+    "katex": "^0.16.45",
     "lucide-react": "^0.400.0",
+    "mammoth": "^1.12.0",
     "next": "^14.2.0",
     "next-themes": "^0.3.0",
     "nextjs-toploader": "^3.9.17",

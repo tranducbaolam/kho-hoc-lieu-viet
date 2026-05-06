@@ -10,6 +10,7 @@ import type { Role } from '@/lib/permissions'
 import { getProfile } from '@/lib/auth/session'
 import type { PostFormValues } from './types'
 import { scheduleNewsletterSend } from '@/features/newsletter/actions'
+import { maybeSanitizeHtmlContent } from '@/lib/content/sanitize'
 
 async function generateUniqueSlug(title: string, excludeId?: string): Promise<string> {
   const supabase = await createClient()
@@ -44,9 +45,19 @@ export async function createPost(values: PostFormValues) {
       title: values.title,
       slug,
       excerpt: values.excerpt || null,
-      content: values.content || null,
+      content: values.content ? maybeSanitizeHtmlContent(values.content) : null,
       cover_image: values.cover_image || null,
       category_id: values.category_id || null,
+      content_type: values.content_type || 'lesson',
+      grade_id: values.grade_id || null,
+      subject_id: values.subject_id || null,
+      chapter_id: values.chapter_id || null,
+      lesson_order: values.lesson_order ?? 0,
+      difficulty: values.difficulty || null,
+      exam_type: values.exam_type || null,
+      exam_year: values.exam_year || null,
+      school_name: values.school_name || null,
+      province: values.province || null,
       seo_title: values.seo_title || null,
       seo_description: values.seo_description || null,
       author_id: profile.id,
@@ -95,9 +106,19 @@ export async function updatePost(id: string, values: PostFormValues) {
       title: values.title,
       slug,
       excerpt: values.excerpt || null,
-      content: values.content || null,
+      content: values.content ? maybeSanitizeHtmlContent(values.content) : null,
       cover_image: values.cover_image || null,
       category_id: values.category_id || null,
+      content_type: values.content_type || 'lesson',
+      grade_id: values.grade_id || null,
+      subject_id: values.subject_id || null,
+      chapter_id: values.chapter_id || null,
+      lesson_order: values.lesson_order ?? 0,
+      difficulty: values.difficulty || null,
+      exam_type: values.exam_type || null,
+      exam_year: values.exam_year || null,
+      school_name: values.school_name || null,
+      province: values.province || null,
       seo_title: values.seo_title || null,
       seo_description: values.seo_description || null,
     })
@@ -117,6 +138,7 @@ export async function updatePost(id: string, values: PostFormValues) {
 
   revalidatePath('/dashboard/posts')
   revalidatePath(`/blog/${slug}`)
+  revalidatePath(`/hoc/${slug}`)
   return { data: post }
 }
 
@@ -145,6 +167,7 @@ export async function publishPost(id: string) {
   revalidatePath('/dashboard/posts')
   revalidatePath('/blog')
   revalidatePath(`/blog/${post.slug}`)
+  revalidatePath(`/hoc/${post.slug}`)
   return { data: post }
 }
 
@@ -167,6 +190,7 @@ export async function unpublishPost(id: string) {
   revalidatePath('/dashboard/posts')
   revalidatePath('/blog')
   revalidatePath(`/blog/${post.slug}`)
+  revalidatePath(`/hoc/${post.slug}`)
   return { data: post }
 }
 

@@ -39,7 +39,7 @@ const makePost = (id: string, title: string): PostWithRelations => ({
 describe('PostList', () => {
   it('shows empty state when posts array is empty', () => {
     render(<PostList posts={[]} />)
-    expect(screen.getByText('No posts yet.')).toBeInTheDocument()
+    expect(screen.getByText('Chưa có bài viết.')).toBeInTheDocument()
   })
 
   it('renders a list of post cards', () => {

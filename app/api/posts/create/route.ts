@@ -6,6 +6,7 @@ import {
   generateUniqueSlugForApi,
 } from '@/features/api-keys/apiKeyService'
 import { createServiceClient } from '@/lib/supabase/service'
+import { maybeSanitizeHtmlContent } from '@/lib/content/sanitize'
 
 type PostBody = {
   title: string
@@ -18,6 +19,16 @@ type PostBody = {
   tags?: string[]
   category?: string
   image_url?: string
+  content_type?: string
+  grade_id?: string
+  subject_id?: string
+  chapter_id?: string
+  lesson_order?: number
+  difficulty?: string
+  exam_type?: string
+  exam_year?: number
+  school_name?: string
+  province?: string
 }
 
 function parsePostBody(raw: Record<string, unknown>): { body: PostBody } | { error: string } {
@@ -40,12 +51,22 @@ function buildPostPayload(body: PostBody, slug: string, categoryId: string | nul
   return {
     title: body.title.trim(),
     slug,
-    content: body.content,
+    content: maybeSanitizeHtmlContent(body.content),
     excerpt: typeof body.excerpt === 'string' ? body.excerpt : null,
     cover_image: typeof body.image_url === 'string' ? body.image_url : null,
     status: postStatus,
     author_id: userId,
     category_id: categoryId,
+    content_type: ['lesson', 'solution', 'exercise', 'exam', 'news'].includes(body.content_type ?? '') ? body.content_type : 'lesson',
+    grade_id: typeof body.grade_id === 'string' ? body.grade_id : null,
+    subject_id: typeof body.subject_id === 'string' ? body.subject_id : null,
+    chapter_id: typeof body.chapter_id === 'string' ? body.chapter_id : null,
+    lesson_order: typeof body.lesson_order === 'number' ? body.lesson_order : 0,
+    difficulty: ['easy', 'medium', 'hard', 'advanced'].includes(body.difficulty ?? '') ? body.difficulty : null,
+    exam_type: typeof body.exam_type === 'string' ? body.exam_type : null,
+    exam_year: typeof body.exam_year === 'number' ? body.exam_year : null,
+    school_name: typeof body.school_name === 'string' ? body.school_name : null,
+    province: typeof body.province === 'string' ? body.province : null,
     seo_title: typeof body.meta_title === 'string' ? body.meta_title : body.title.trim(),
     seo_description: seoDescription,
     published_at: postStatus === 'published' ? new Date().toISOString() : null,

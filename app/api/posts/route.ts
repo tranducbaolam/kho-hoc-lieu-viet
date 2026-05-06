@@ -7,6 +7,7 @@ import { hashApiKey } from '@/features/api-keys/apiKeyService'
 
 const POST_LIST_SELECT = `
   id, title, slug, excerpt, status, cover_image, created_at, updated_at, published_at,
+  content_type, grade_id, subject_id, chapter_id, lesson_order, difficulty,
   category:categories(name),
   tags:post_tags(tag:tags(name))
 `
@@ -21,6 +22,12 @@ type RawPostRow = {
   created_at: string | null
   updated_at: string | null
   published_at: string | null
+  content_type: string | null
+  grade_id: string | null
+  subject_id: string | null
+  chapter_id: string | null
+  lesson_order: number | null
+  difficulty: string | null
   category: { name: string } | null
   tags: { tag: { name: string } | null }[]
   [key: string]: unknown
@@ -33,6 +40,12 @@ function normalizeListPost(raw: RawPostRow) {
     slug: raw.slug,
     excerpt: raw.excerpt,
     status: raw.status,
+    content_type: raw.content_type,
+    grade_id: raw.grade_id,
+    subject_id: raw.subject_id,
+    chapter_id: raw.chapter_id,
+    lesson_order: raw.lesson_order,
+    difficulty: raw.difficulty,
     category: raw.category?.name ?? null,
     tags: (raw.tags ?? []).map((pt) => pt.tag?.name).filter(Boolean) as string[],
     image_url: raw.cover_image,

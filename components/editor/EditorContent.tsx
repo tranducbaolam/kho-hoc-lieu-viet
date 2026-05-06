@@ -1,3 +1,6 @@
+import { renderMathInHtml } from '@/lib/content/math'
+import { sanitizeImportedHtml } from '@/lib/content/sanitize'
+
 interface TipTapMark {
   type: string
   attrs?: Record<string, string | number | boolean | null>
@@ -144,20 +147,25 @@ interface EditorContentProps {
   readonly className?: string
 }
 
+export function renderContentHtml(content: string): string {
+  if (!content) return ''
+
+  try {
+    const json: TipTapNode = JSON.parse(content)
+    return renderMathInHtml(renderNode(json))
+  } catch {
+    return renderMathInHtml(sanitizeImportedHtml(content))
+  }
+}
+
 export function EditorContent({ content, className }: EditorContentProps) {
   if (!content) return null
 
-  let html = ''
-  try {
-    const json: TipTapNode = JSON.parse(content)
-    html = renderNode(json)
-  } catch {
-    html = content
-  }
+  const html = renderContentHtml(content)
 
   return (
     <div
-      className={`prose prose-sm sm:prose-base lg:prose-lg max-w-none ${className ?? ''}`}
+      className={`lesson-content prose prose-sm sm:prose-base lg:prose-lg max-w-none ${className ?? ''}`}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   )

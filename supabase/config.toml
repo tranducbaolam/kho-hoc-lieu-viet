@@ -228,7 +228,7 @@ otp_expiry = 3600
 
 # Uncomment to customize email template
 [auth.email.template.confirmation]
-subject = "Confirm your signup – The Practical Engineer"
+subject = "Xác nhận đăng ký - Kho Học Liệu Việt"
 content_path = "./templates/confirm.html"
 
 # Uncomment to customize notification email template

@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger, DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import type { PostWithRelations } from '@/features/posts/types'
+import { CONTENT_TYPE_LABELS } from '@/features/education/types'
 
 interface PostRowProps {
   post: PostWithRelations
@@ -21,6 +22,9 @@ export function PostRow({ post, onPublish, onUnpublish, onDelete }: PostRowProps
   const router = useRouter()
   const authorName = post.author?.full_name ?? post.author?.email ?? '—'
   const authorInitial = authorName[0]?.toUpperCase() ?? '?'
+  const contentTypeLabel = post.content_type && post.content_type in CONTENT_TYPE_LABELS
+    ? CONTENT_TYPE_LABELS[post.content_type as keyof typeof CONTENT_TYPE_LABELS]
+    : 'Bài học'
 
   return (
     <tr className="group hover:bg-blue-50/30 transition-colors duration-150">
@@ -54,6 +58,20 @@ export function PostRow({ post, onPublish, onUnpublish, onDelete }: PostRowProps
         </div>
       </td>
 
+      <td className="px-5 py-4 hidden xl:table-cell">
+        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700">
+          {contentTypeLabel}
+        </span>
+      </td>
+
+      <td className="px-5 py-4 hidden xl:table-cell">
+        <div className="text-xs text-muted-foreground space-y-0.5">
+          <p className="font-medium text-gray-700">{post.grade?.name ?? 'Chưa chọn lớp'}</p>
+          <p>{post.subject?.name ?? 'Chưa chọn môn'}</p>
+          <p className="line-clamp-1">{post.chapter?.name ?? 'Chưa chọn chương'}</p>
+        </div>
+      </td>
+
       <td className="px-5 py-4 hidden md:table-cell">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-[10px] font-bold shrink-0">
@@ -67,18 +85,18 @@ export function PostRow({ post, onPublish, onUnpublish, onDelete }: PostRowProps
         {post.status === 'published' ? (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            Published
+            Đã đăng
           </span>
         ) : (
           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            Draft
+            Bản nháp
           </span>
         )}
       </td>
 
       <td className="px-5 py-4 hidden lg:table-cell text-sm text-muted-foreground">
-        {post.updated_at ? format(new Date(post.updated_at), 'MMM d, yyyy') : '—'}
+        {post.updated_at ? format(new Date(post.updated_at), 'dd/MM/yyyy') : '—'}
       </td>
 
       <td className="px-5 py-4 text-right">
@@ -88,15 +106,15 @@ export function PostRow({ post, onPublish, onUnpublish, onDelete }: PostRowProps
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             <DropdownMenuItem onClick={() => router.push(`/dashboard/posts/${post.id}/edit`)}>
-              <Pencil className="h-4 w-4 mr-2" /> Edit post
+              <Pencil className="h-4 w-4 mr-2" /> Sửa bài
             </DropdownMenuItem>
             {post.status === 'draft' ? (
               <DropdownMenuItem onClick={() => onPublish(post.id)}>
-                <Eye className="h-4 w-4 mr-2" /> Publish
+                <Eye className="h-4 w-4 mr-2" /> Đăng bài
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem onClick={() => onUnpublish(post.id)}>
-                <EyeOff className="h-4 w-4 mr-2" /> Unpublish
+                <EyeOff className="h-4 w-4 mr-2" /> Gỡ đăng
               </DropdownMenuItem>
             )}
             <DropdownMenuSeparator />
@@ -104,7 +122,7 @@ export function PostRow({ post, onPublish, onUnpublish, onDelete }: PostRowProps
               className="text-red-600 focus:text-red-600 focus:bg-red-50"
               onClick={() => onDelete(post.id, post.title)}
             >
-              <Trash2 className="h-4 w-4 mr-2" /> Delete
+              <Trash2 className="h-4 w-4 mr-2" /> Xóa
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

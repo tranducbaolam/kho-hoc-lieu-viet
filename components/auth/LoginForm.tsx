@@ -14,8 +14,8 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Email không hợp lệ'),
+  password: z.string().min(6, 'Mật khẩu cần ít nhất 6 ký tự'),
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>
@@ -46,10 +46,9 @@ export default function LoginForm() {
 
   return (
     <div className="p-8">
-      {/* Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Welcome back</h2>
-        <p className="text-sm text-gray-500 mt-1">Sign in to your account to continue</p>
+        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Đăng nhập</h2>
+        <p className="text-sm text-gray-500 mt-1">Truy cập tài khoản để quản lý nội dung học liệu.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -62,14 +61,14 @@ export default function LoginForm() {
 
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-            Email address
+            Email
           </Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="ban@example.com"
               className="pl-9 h-10"
               {...register('email', { onChange: () => clearErrors('email') })}
             />
@@ -83,7 +82,7 @@ export default function LoginForm() {
 
         <div className="space-y-1.5">
           <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-            Password
+            Mật khẩu
           </Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
@@ -110,18 +109,18 @@ export default function LoginForm() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Signing in…
+              Đang đăng nhập...
             </>
           ) : (
-            'Sign in'
+            'Đăng nhập'
           )}
         </Button>
       </form>
 
       <p className="text-sm text-gray-500 text-center mt-6">
-        Don&apos;t have an account?{' '}
+        Chưa có tài khoản?{' '}
         <Link href="/register" className="text-blue-600 font-medium hover:text-blue-700 transition-colors">
-          Create one
+          Tạo tài khoản
         </Link>
       </p>
     </div>

@@ -58,15 +58,15 @@ describe('PostCard', () => {
     expect(screen.getByText('jane@example.com')).toBeInTheDocument()
   })
 
-  it('renders "Unknown" when author is null', () => {
+  it('renders teacher fallback when author is null', () => {
     const post = { ...basePost, author: null }
     render(<PostCard post={post} />)
-    expect(screen.getByText('Unknown')).toBeInTheDocument()
+    expect(screen.getByText('Giáo viên')).toBeInTheDocument()
   })
 
   it('renders formatted published date', () => {
     render(<PostCard post={basePost} />)
-    expect(screen.getByText('Jun 1, 2024')).toBeInTheDocument()
+    expect(screen.getByText('01/06/2024')).toBeInTheDocument()
   })
 
   it('does not render date when published_at is null', () => {
@@ -93,8 +93,8 @@ describe('PostCard', () => {
     expect(screen.getByRole('link', { name: 'Technology' })).toHaveAttribute('href', '/blog/category/technology')
   })
 
-  it('links the title to the blog post', () => {
+  it('links the title to the education post', () => {
     render(<PostCard post={basePost} />)
-    expect(screen.getByRole('link', { name: 'Hello World' })).toHaveAttribute('href', '/blog/hello-world')
+    expect(screen.getByRole('link', { name: 'Hello World' })).toHaveAttribute('href', '/hoc/hello-world')
   })
 })

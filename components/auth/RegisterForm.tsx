@@ -14,12 +14,12 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 const registerSchema = z.object({
-  full_name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  full_name: z.string().min(2, 'Tên cần ít nhất 2 ký tự'),
+  email: z.string().email('Email không hợp lệ'),
+  password: z.string().min(6, 'Mật khẩu cần ít nhất 6 ký tự'),
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match',
+  message: 'Mật khẩu xác nhận không khớp',
   path: ['confirmPassword'],
 })
 
@@ -60,15 +60,15 @@ export default function RegisterForm() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-50 mb-4">
           <CheckCircle2 className="w-8 h-8 text-green-500" />
         </div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Check your email</h2>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Kiểm tra email</h2>
         <p className="text-gray-500 text-sm mb-6">
-          We sent a confirmation link to your email. Click it to activate your account.
+          Chúng tôi đã gửi liên kết xác nhận. Hãy mở email để kích hoạt tài khoản.
         </p>
         <Link
           href="/login"
           className="text-sm text-blue-600 font-medium hover:text-blue-700 transition-colors"
         >
-          Back to sign in
+          Quay lại đăng nhập
         </Link>
       </div>
     )
@@ -76,10 +76,9 @@ export default function RegisterForm() {
 
   return (
     <div className="p-8">
-      {/* Header */}
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Create an account</h2>
-        <p className="text-sm text-gray-500 mt-1">Start writing and managing your content</p>
+        <h2 className="text-2xl font-bold text-gray-900 tracking-tight">Tạo tài khoản</h2>
+        <p className="text-sm text-gray-500 mt-1">Bắt đầu quản lý bài học, lời giải và đề thi.</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -91,12 +90,12 @@ export default function RegisterForm() {
         )}
 
         <div className="space-y-1.5">
-          <Label htmlFor="full_name" className="text-sm font-medium text-gray-700">Full name</Label>
+          <Label htmlFor="full_name" className="text-sm font-medium text-gray-700">Họ tên</Label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             <Input
               id="full_name"
-              placeholder="Jane Smith"
+              placeholder="Nguyễn Văn A"
               className="pl-9 h-10"
               {...register('full_name', { onChange: () => clearErrors('full_name') })}
             />
@@ -109,13 +108,13 @@ export default function RegisterForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email address</Label>
+          <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="ban@example.com"
               className="pl-9 h-10"
               {...register('email', { onChange: () => clearErrors('email') })}
             />
@@ -128,13 +127,13 @@ export default function RegisterForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
+          <Label htmlFor="password" className="text-sm font-medium text-gray-700">Mật khẩu</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             <Input
               id="password"
               type="password"
-              placeholder="Min. 6 characters"
+              placeholder="Tối thiểu 6 ký tự"
               className="pl-9 h-10"
               {...register('password', { onChange: () => clearErrors('password') })}
             />
@@ -147,13 +146,13 @@ export default function RegisterForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Confirm password</Label>
+          <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Xác nhận mật khẩu</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
             <Input
               id="confirmPassword"
               type="password"
-              placeholder="Repeat your password"
+              placeholder="Nhập lại mật khẩu"
               className="pl-9 h-10"
               {...register('confirmPassword', { onChange: () => clearErrors('confirmPassword') })}
             />
@@ -173,18 +172,18 @@ export default function RegisterForm() {
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating account…
+              Đang tạo tài khoản...
             </>
           ) : (
-            'Create account'
+            'Tạo tài khoản'
           )}
         </Button>
       </form>
 
       <p className="text-sm text-gray-500 text-center mt-6">
-        Already have an account?{' '}
+        Đã có tài khoản?{' '}
         <Link href="/login" className="text-blue-600 font-medium hover:text-blue-700 transition-colors">
-          Sign in
+          Đăng nhập
         </Link>
       </p>
     </div>

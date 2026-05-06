@@ -5,6 +5,9 @@ const POST_SELECT = `
   *,
   author:profiles!posts_author_id_fkey(id, full_name, email, avatar_url),
   category:categories(id, name, slug),
+  grade:education_grades(id, name, slug, level_order),
+  subject:education_subjects(id, name, slug),
+  chapter:education_chapters(id, name, slug, chapter_order),
   tags:post_tags(tag:tags(id, name, slug))
 `
 

@@ -3,18 +3,18 @@ import { render, screen } from '@testing-library/react'
 import { PostStatusBadge } from '@/features/posts/components/PostStatusBadge'
 
 describe('PostStatusBadge', () => {
-  it('renders Published badge for published status', () => {
+  it('renders Vietnamese published badge for published status', () => {
     render(<PostStatusBadge status="published" />)
-    expect(screen.getByText('Published')).toBeInTheDocument()
+    expect(screen.getByText('Đã đăng')).toBeInTheDocument()
   })
 
-  it('renders Draft badge for draft status', () => {
+  it('renders Vietnamese draft badge for draft status', () => {
     render(<PostStatusBadge status="draft" />)
-    expect(screen.getByText('Draft')).toBeInTheDocument()
+    expect(screen.getByText('Bản nháp')).toBeInTheDocument()
   })
 
-  it('renders Draft badge for unknown status', () => {
+  it('renders Vietnamese draft badge for unknown status', () => {
     render(<PostStatusBadge status="archived" />)
-    expect(screen.getByText('Draft')).toBeInTheDocument()
+    expect(screen.getByText('Bản nháp')).toBeInTheDocument()
   })
 })

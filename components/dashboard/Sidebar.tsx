@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, FileText, PlusCircle, Users, FolderOpen, Tag, LogOut, Menu, X, MessageSquare, Loader2, Code, Bot, UserCircle, Mail,
+  GraduationCap, BookOpen, Layers3,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { can } from '@/lib/permissions'
@@ -22,7 +23,6 @@ export function Sidebar({ profile }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  // Close drawer on navigation
   useEffect(() => {
     setMobileOpen(false)
   }, [pathname])
@@ -38,16 +38,19 @@ export function Sidebar({ profile }: SidebarProps) {
   }
 
   const navItems = [
-    { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', show: true, section: 'main' as const },
-    { href: '/dashboard/profile', icon: UserCircle, label: 'Profile', show: true, section: 'main' as const },
-    { href: '/dashboard/posts', icon: FileText, label: 'Posts', show: true, section: 'main' as const },
-    { href: '/dashboard/posts/new', icon: PlusCircle, label: 'New Post', show: true, section: 'main' as const },
+    { href: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan', show: true, section: 'main' as const },
+    { href: '/dashboard/profile', icon: UserCircle, label: 'Hồ sơ', show: true, section: 'main' as const },
+    { href: '/dashboard/posts', icon: FileText, label: 'Bài viết', show: true, section: 'main' as const },
+    { href: '/dashboard/posts/new', icon: PlusCircle, label: 'Thêm bài', show: true, section: 'main' as const },
     { href: '/dashboard/ai-assistant', icon: Bot, label: 'AI Assistant', show: true, section: 'main' as const },
-    { href: '/dashboard/developer', icon: Code, label: 'Developer', show: can(role, 'api_keys:write'), section: 'main' as const },
-    { href: '/dashboard/admin/users', icon: Users, label: 'Users', show: can(role, 'users:read'), section: 'admin' as const },
-    { href: '/dashboard/admin/categories', icon: FolderOpen, label: 'Categories', show: can(role, 'categories:write'), section: 'admin' as const },
-    { href: '/dashboard/admin/tags', icon: Tag, label: 'Tags', show: can(role, 'tags:write'), section: 'admin' as const },
-    { href: '/dashboard/comments', icon: MessageSquare, label: 'Comments', show: can(role, 'comments:delete:all'), section: 'admin' as const },
+    { href: '/dashboard/developer', icon: Code, label: 'Nhà phát triển', show: can(role, 'api_keys:write'), section: 'main' as const },
+    { href: '/dashboard/admin/users', icon: Users, label: 'Người dùng', show: can(role, 'users:read'), section: 'admin' as const },
+    { href: '/dashboard/admin/grades', icon: GraduationCap, label: 'Lớp học', show: can(role, 'categories:write'), section: 'admin' as const },
+    { href: '/dashboard/admin/subjects', icon: BookOpen, label: 'Môn học', show: can(role, 'categories:write'), section: 'admin' as const },
+    { href: '/dashboard/admin/chapters', icon: Layers3, label: 'Chương / Chuyên đề', show: can(role, 'categories:write'), section: 'admin' as const },
+    { href: '/dashboard/admin/categories', icon: FolderOpen, label: 'Chuyên mục phụ', show: can(role, 'categories:write'), section: 'admin' as const },
+    { href: '/dashboard/admin/tags', icon: Tag, label: 'Thẻ', show: can(role, 'tags:write'), section: 'admin' as const },
+    { href: '/dashboard/comments', icon: MessageSquare, label: 'Bình luận', show: can(role, 'comments:delete:all'), section: 'admin' as const },
     { href: '/dashboard/admin/newsletter', icon: Mail, label: 'Newsletter', show: can(role, 'users:read'), section: 'admin' as const },
   ]
 
@@ -60,27 +63,24 @@ export function Sidebar({ profile }: SidebarProps) {
 
   const sidebarContent = (
     <>
-      {/* Logo */}
       <div className="p-6 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-3 group hover:opacity-80 transition-opacity">
-          <Image src="/logo.png" alt="The Practical Engineer" width={36} height={36} className="rounded-lg shrink-0" />
-          <span className="font-bold text-white text-lg tracking-tight">The Practical Engineer</span>
+          <Image src="/logo.png" alt="Kho Học Liệu Việt" width={36} height={36} className="rounded-lg shrink-0" />
+          <span className="font-bold text-white text-lg tracking-tight">Kho Học Liệu Việt</span>
         </Link>
         <button
           className="md:hidden text-slate-400 hover:text-white p-1"
           onClick={() => setMobileOpen(false)}
-          aria-label="Close menu"
+          aria-label="Đóng menu"
         >
           <X className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 px-3 space-y-6 overflow-y-auto">
-        {/* Main */}
         <div className="space-y-0.5">
           <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-2">
-            Main
+            Chính
           </p>
           {mainItems.map((item) => {
             const Icon = item.icon
@@ -100,7 +100,7 @@ export function Sidebar({ profile }: SidebarProps) {
                 {item.label}
                 {item.href === '/dashboard/posts/new' && (
                   <span className="ml-auto text-[10px] font-semibold bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full">
-                    New
+                    Mới
                   </span>
                 )}
               </Link>
@@ -108,11 +108,10 @@ export function Sidebar({ profile }: SidebarProps) {
           })}
         </div>
 
-        {/* Admin */}
         {adminItems.length > 0 && (
           <div className="space-y-0.5">
             <p className="px-3 text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-2">
-              Admin
+              Quản trị
             </p>
             {adminItems.map((item) => {
               const Icon = item.icon
@@ -137,7 +136,6 @@ export function Sidebar({ profile }: SidebarProps) {
         )}
       </nav>
 
-      {/* User section */}
       <div className="p-3 border-t border-slate-800">
         <Link href="/dashboard/profile" className="flex items-center gap-3 px-3 py-3 rounded-lg mb-1 hover:bg-slate-800 transition-colors">
           {profile.avatar_url ? (
@@ -162,7 +160,7 @@ export function Sidebar({ profile }: SidebarProps) {
             ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
             : <LogOut className="h-4 w-4 shrink-0" />
           }
-          {isPending ? 'Signing out…' : 'Sign out'}
+          {isPending ? 'Đang đăng xuất...' : 'Đăng xuất'}
         </button>
       </div>
     </>
@@ -170,22 +168,20 @@ export function Sidebar({ profile }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14 bg-slate-950 border-b border-slate-800">
         <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-          <Image src="/logo.png" alt="The Practical Engineer" width={32} height={32} className="rounded-lg shrink-0" />
-          <span className="font-bold text-white text-base tracking-tight">The Practical Engineer</span>
+          <Image src="/logo.png" alt="Kho Học Liệu Việt" width={32} height={32} className="rounded-lg shrink-0" />
+          <span className="font-bold text-white text-base tracking-tight">Kho Học Liệu Việt</span>
         </Link>
         <button
           onClick={() => setMobileOpen(true)}
           className="text-slate-400 hover:text-white p-1"
-          aria-label="Open menu"
+          aria-label="Mở menu"
         >
           <Menu className="h-5 w-5" />
         </button>
       </div>
 
-      {/* Backdrop */}
       {mobileOpen && (
         <div
           className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
@@ -194,7 +190,6 @@ export function Sidebar({ profile }: SidebarProps) {
         />
       )}
 
-      {/* Sidebar — drawer on mobile, static on md+ */}
       <aside
         className={cn(
           'fixed top-0 left-0 z-50 h-full w-64 bg-slate-950 flex flex-col border-r border-slate-800 transition-transform duration-300 ease-in-out',
