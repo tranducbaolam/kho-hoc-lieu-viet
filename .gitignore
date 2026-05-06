@@ -29,4 +29,6 @@
 *.so
 .e2e-state.json
 /test-results/
-.playwright-mcp/
+.playwright-mcp/.next/
+node_modules/
+.env.local
