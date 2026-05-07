@@ -6,7 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, FileText, PlusCircle, Users, FolderOpen, Tag, LogOut, Menu, X, MessageSquare, Loader2, Code, Bot, UserCircle, Mail,
-  GraduationCap, BookOpen, Layers3,
+  GraduationCap, BookOpen, Layers3, BarChart3,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { can } from '@/lib/permissions'
@@ -52,6 +52,7 @@ export function Sidebar({ profile }: SidebarProps) {
     { href: '/dashboard/admin/tags', icon: Tag, label: 'Thẻ', show: can(role, 'tags:write'), section: 'admin' as const },
     { href: '/dashboard/comments', icon: MessageSquare, label: 'Bình luận', show: can(role, 'comments:delete:all'), section: 'admin' as const },
     { href: '/dashboard/admin/newsletter', icon: Mail, label: 'Newsletter', show: can(role, 'users:read'), section: 'admin' as const },
+    { href: '/dashboard/admin/visits', icon: BarChart3, label: 'Lượt truy cập', show: can(role, 'users:read'), section: 'admin' as const },
   ]
 
   const initials = profile.full_name

@@ -11,6 +11,8 @@ import {
 import type { PostWithRelations } from '@/features/posts/types'
 import { CONTENT_TYPE_LABELS } from '@/features/education/types'
 
+const countFormatter = new Intl.NumberFormat('vi-VN')
+
 interface PostRowProps {
   post: PostWithRelations
   onPublish: (id: string) => void
@@ -25,6 +27,7 @@ export function PostRow({ post, onPublish, onUnpublish, onDelete }: PostRowProps
   const contentTypeLabel = post.content_type && post.content_type in CONTENT_TYPE_LABELS
     ? CONTENT_TYPE_LABELS[post.content_type as keyof typeof CONTENT_TYPE_LABELS]
     : 'Bài học'
+  const viewCount = countFormatter.format(post.view_count ?? 0)
 
   return (
     <tr className="group hover:bg-blue-50/30 transition-colors duration-150">
@@ -55,6 +58,7 @@ export function PostRow({ post, onPublish, onUnpublish, onDelete }: PostRowProps
           {post.excerpt && (
             <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{post.excerpt}</p>
           )}
+          <p className="text-xs text-muted-foreground mt-1">Lượt xem: {viewCount}</p>
         </div>
       </td>
 

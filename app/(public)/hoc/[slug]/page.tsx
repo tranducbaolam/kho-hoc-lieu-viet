@@ -13,8 +13,11 @@ import { EducationPostList } from '@/features/education/components/EducationPost
 import { PublicAttachmentsSection } from '@/features/attachments/components/PublicAttachmentsSection'
 import { createClient } from '@/lib/supabase/server'
 import { isEmailVerified } from '@/lib/auth/emailVerification'
+import { ArticleVisitLogger } from '@/components/analytics/ArticleVisitLogger'
 
 export const revalidate = 3600
+
+const countFormatter = new Intl.NumberFormat('vi-VN')
 
 interface EducationPostPageProps {
   params: Promise<{ slug: string }>
@@ -42,15 +45,19 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
   if (!post) notFound()
 
   const supabase = await createClient()
-  const [authResult, relatedPosts, siblingChapters, attachments] = await Promise.all([
+  const [authResult, relatedPosts, siblingChapters, attachments, viewResult] = await Promise.all([
     supabase.auth.getUser(),
     getRelatedPosts(post, 6),
     post.grade_id && post.subject_id ? getChaptersForGradeSubject(post.grade_id, post.subject_id) : Promise.resolve([]),
     getPostAttachments(post.id),
+    supabase.rpc('increment_post_view', { post_id: post.id }),
   ])
 
   const isAuthenticated = isEmailVerified(authResult.data.user)
   const currentPath = `/hoc/${post.slug}`
+  const viewCount = typeof viewResult.data === 'number'
+    ? viewResult.data
+    : Number(post.view_count ?? 0)
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000').replace(/\/+$/, '')
   const contentTypeLabel = post.content_type && post.content_type in CONTENT_TYPE_LABELS
     ? CONTENT_TYPE_LABELS[post.content_type as keyof typeof CONTENT_TYPE_LABELS]
@@ -72,6 +79,7 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
 
   return (
     <>
+      <ArticleVisitLogger path={currentPath} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="container max-w-7xl mx-auto px-4 py-8">
         <nav className="mb-5 text-sm text-muted-foreground">
@@ -111,6 +119,7 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
               {post.excerpt && <p className="mt-4 text-lg text-muted-foreground">{post.excerpt}</p>}
               <div className="mt-4 flex items-center gap-3 text-sm text-muted-foreground">
                 <span>{post.author?.full_name ?? post.author?.email ?? 'Giáo viên'}</span>
+                <span>Lượt xem: {countFormatter.format(viewCount)}</span>
                 <div className="ml-auto">
                   <ShareButton url={`${baseUrl}/hoc/${post.slug}`} title={post.title} />
                 </div>
@@ -129,6 +138,7 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
                   description: a.description,
                   file_size: a.file_size,
                   file_type: a.file_type,
+                  download_count: a.download_count,
                 }))}
               />
             )}
@@ -146,6 +156,7 @@ export default async function EducationPostPage({ params }: EducationPostPagePro
                   description: a.description,
                   file_size: a.file_size,
                   file_type: a.file_type,
+                  download_count: a.download_count,
                 }))}
               />
             )}

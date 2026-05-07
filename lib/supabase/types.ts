@@ -248,6 +248,7 @@ export type Database = {
           created_at: string | null
           description: string | null
           display_order: number | null
+          download_count: number
           file_name: string
           file_path: string | null
           file_size: number | null
@@ -261,6 +262,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           display_order?: number | null
+          download_count?: number
           file_name: string
           file_path?: string | null
           file_size?: number | null
@@ -274,6 +276,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           display_order?: number | null
+          download_count?: number
           file_name?: string
           file_path?: string | null
           file_size?: number | null
@@ -326,6 +329,7 @@ export type Database = {
           subject_id: string | null
           title: string
           updated_at: string | null
+          view_count: number
         }
         Insert: {
           author_id?: string | null
@@ -352,6 +356,7 @@ export type Database = {
           subject_id?: string | null
           title: string
           updated_at?: string | null
+          view_count?: number
         }
         Update: {
           author_id?: string | null
@@ -378,6 +383,7 @@ export type Database = {
           subject_id?: string | null
           title?: string
           updated_at?: string | null
+          view_count?: number
         }
         Relationships: [
           {
@@ -486,6 +492,47 @@ export type Database = {
         }
         Relationships: []
       }
+      visit_logs: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string | null
+          id: string
+          ip_hash: string | null
+          path: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          path: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string | null
+          id?: string
+          ip_hash?: string | null
+          path?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visit_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tags: {
         Row: {
           created_at: string | null
@@ -512,7 +559,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_attachment_download: {
+        Args: {
+          attachment_id: string
+        }
+        Returns: number
+      }
+      increment_post_view: {
+        Args: {
+          post_id: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never

@@ -13,6 +13,10 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
       const { data: { user } } = await supabase.auth.getUser()
+      if (!user?.email) {
+        await supabase.auth.signOut()
+        return NextResponse.redirect(`${origin}/login?error=oauth_missing_email`)
+      }
       if (isEmailVerified(user)) {
         return NextResponse.redirect(`${origin}${next}`)
       }

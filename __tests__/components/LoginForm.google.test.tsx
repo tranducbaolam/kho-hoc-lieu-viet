@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 
 const mockPush = vi.hoisted(() => vi.fn())
 const mockLogin = vi.hoisted(() => vi.fn())
+const mockSignInWithOAuth = vi.hoisted(() => vi.fn())
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mockPush }),
@@ -10,6 +11,14 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/app/(auth)/login/actions', () => ({
   login: mockLogin,
+}))
+
+vi.mock('@/lib/supabase/client', () => ({
+  createClient: () => ({
+    auth: {
+      signInWithOAuth: mockSignInWithOAuth,
+    },
+  }),
 }))
 
 import LoginForm from '@/components/auth/LoginForm'
@@ -28,12 +37,54 @@ beforeEach(() => {
   mockPush.mockClear()
   mockLogin.mockReset()
   mockLogin.mockResolvedValue({ success: true })
+  mockSignInWithOAuth.mockReset()
+  mockSignInWithOAuth.mockResolvedValue({ error: null })
 })
 
 describe('LoginForm Google OAuth', () => {
   it('does not show Google login button', () => {
     render(<LoginForm />)
     expect(screen.queryByRole('button', { name: /google/i })).not.toBeInTheDocument()
+  })
+
+  it('shows Facebook login button', () => {
+    render(<LoginForm />)
+    expect(screen.getByRole('button', { name: 'Đăng nhập bằng Facebook' })).toBeInTheDocument()
+  })
+
+  it('starts Facebook OAuth with Supabase', async () => {
+    render(<LoginForm />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập bằng Facebook' }))
+
+    await waitFor(() => {
+      expect(mockSignInWithOAuth).toHaveBeenCalledWith({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+    })
+  })
+
+  it('shows a Vietnamese error if Facebook OAuth cannot start', async () => {
+    mockSignInWithOAuth.mockResolvedValue({ error: { message: 'OAuth error' } })
+    render(<LoginForm />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập bằng Facebook' }))
+
+    expect(await screen.findByText('Không thể đăng nhập bằng Facebook. Vui lòng thử lại.')).toBeInTheDocument()
+  })
+
+  it('keeps email and password login working', async () => {
+    render(<LoginForm />)
+
+    submitLoginForm()
+
+    await waitFor(() => {
+      expect(mockLogin).toHaveBeenCalled()
+      expect(mockPush).toHaveBeenCalledWith('/dashboard')
+    })
   })
 
   it('redirects to a safe internal next path after login', async () => {

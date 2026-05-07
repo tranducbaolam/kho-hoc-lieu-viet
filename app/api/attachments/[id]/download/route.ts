@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/service'
 import { isEmailVerified } from '@/lib/auth/emailVerification'
 import { getInternalPathFromUrl, getSafeInternalPath } from '@/lib/auth/redirect'
 
@@ -58,6 +59,8 @@ export async function GET(req: NextRequest, context: { params: Promise<{ id: str
   if (!isAdmin && post?.status !== 'published') {
     return NextResponse.json({ error: 'Attachment not found' }, { status: 404 })
   }
+
+  await createServiceClient().rpc('increment_attachment_download', { attachment_id: id })
 
   const { data: signed, error: signError } = await supabase
     .storage

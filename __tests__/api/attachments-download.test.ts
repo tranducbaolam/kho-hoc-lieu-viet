@@ -2,9 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextRequest } from 'next/server'
 
 const mockCreateClient = vi.hoisted(() => vi.fn())
+const mockServiceRpc = vi.hoisted(() => vi.fn())
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: mockCreateClient,
+}))
+
+vi.mock('@/lib/supabase/service', () => ({
+  createServiceClient: () => ({ rpc: mockServiceRpc }),
 }))
 
 import { GET } from '@/app/api/attachments/[id]/download/route'
@@ -77,7 +82,6 @@ function makeSupabaseMock({
     data: { signedUrl },
     error: null,
   })
-
   return {
     createSignedUrl,
     supabase: {
@@ -94,6 +98,7 @@ function makeSupabaseMock({
 
 beforeEach(() => {
   vi.clearAllMocks()
+  mockServiceRpc.mockResolvedValue({ data: 1, error: null })
 })
 
 describe('GET /api/attachments/[id]/download', () => {
@@ -108,6 +113,7 @@ describe('GET /api/attachments/[id]/download', () => {
 
     expect(response.status).toBe(302)
     expect(response.headers.get('location')).toBe('http://localhost/login?next=%2Fhoc%2Fcan-bac-hai')
+    expect(mockServiceRpc).not.toHaveBeenCalled()
   })
 
   it('redirects authenticated users to a signed URL for published post attachments', async () => {
@@ -132,6 +138,9 @@ describe('GET /api/attachments/[id]/download', () => {
 
     expect(response.status).toBe(302)
     expect(response.headers.get('location')).toBe('https://storage.example/signed-file')
+    expect(mockServiceRpc).toHaveBeenCalledWith('increment_attachment_download', {
+      attachment_id: 'attachment-1',
+    })
     expect(createSignedUrl).toHaveBeenCalledWith('post-1/file.pdf', 60 * 5, {
       download: 'file.pdf',
     })
@@ -157,6 +166,7 @@ describe('GET /api/attachments/[id]/download', () => {
     )
 
     expect(response.status).toBe(404)
+    expect(mockServiceRpc).not.toHaveBeenCalled()
     expect(createSignedUrl).not.toHaveBeenCalled()
   })
 
@@ -182,6 +192,9 @@ describe('GET /api/attachments/[id]/download', () => {
 
     expect(response.status).toBe(302)
     expect(response.headers.get('location')).toBe('https://storage.example/admin-signed-file')
+    expect(mockServiceRpc).toHaveBeenCalledWith('increment_attachment_download', {
+      attachment_id: 'attachment-1',
+    })
     expect(createSignedUrl).toHaveBeenCalled()
   })
 })

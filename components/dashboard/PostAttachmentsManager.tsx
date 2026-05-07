@@ -19,8 +19,11 @@ type AttachmentRow = {
   file_size: number | null
   description: string | null
   display_order: number | null
+  download_count: number
   created_at: string | null
 }
+
+const countFormatter = new Intl.NumberFormat('vi-VN')
 
 export function PostAttachmentsManager({ postId }: { postId: string }) {
   const supabase = useMemo(() => createClient(), [])
@@ -209,12 +212,14 @@ export function PostAttachmentsManager({ postId }: { postId: string }) {
           {attachments.map((att, idx) => {
             const sizeLabel = formatBytes(att.file_size)
             const meta = [att.file_type, sizeLabel].filter(Boolean).join(' • ')
+            const downloadCount = countFormatter.format(att.download_count ?? 0)
             return (
               <div key={att.id} className="rounded-lg border p-3">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-medium break-words">{att.file_name}</p>
                     {meta && <p className="mt-1 text-xs text-muted-foreground">{meta}</p>}
+                    <p className="mt-1 text-xs text-muted-foreground">Đã tải: {downloadCount} lượt</p>
                     <div className="mt-2">
                       <Label className="text-xs text-muted-foreground">Mô tả</Label>
                       <Textarea

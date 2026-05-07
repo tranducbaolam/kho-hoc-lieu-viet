@@ -7,7 +7,10 @@ export interface PublicAttachment {
   description: string | null
   file_size: number | null
   file_type: string | null
+  download_count: number
 }
+
+const countFormatter = new Intl.NumberFormat('vi-VN')
 
 export function PublicAttachmentsSection({
   attachments,
@@ -41,6 +44,9 @@ export function PublicAttachmentsSection({
                 <p className="font-medium break-words">{att.file_name}</p>
                 {att.description && <p className="mt-1 text-sm text-muted-foreground">{att.description}</p>}
                 {meta && <p className="mt-1 text-xs text-muted-foreground">{meta}</p>}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Đã tải: {countFormatter.format(att.download_count ?? 0)} lượt
+                </p>
               </div>
               <div className="shrink-0">
                 <a

@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getSafeInternalPath } from '@/lib/auth/redirect'
+import { createClient } from '@/lib/supabase/client'
 
 const loginSchema = z.object({
   email: z.string().email('Email không hợp lệ'),
@@ -21,10 +22,19 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
-export default function LoginForm({ nextPath }: { nextPath?: string | null }) {
+const FACEBOOK_LOGIN_ERROR = 'Không thể đăng nhập bằng Facebook. Vui lòng thử lại.'
+
+export default function LoginForm({
+  nextPath,
+  initialError,
+}: {
+  nextPath?: string | null
+  initialError?: string | null
+}) {
   const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(initialError ?? null)
   const [loading, setLoading] = useState(false)
+  const [oauthLoading, setOauthLoading] = useState(false)
 
   const { register, handleSubmit, clearErrors, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -43,6 +53,28 @@ export default function LoginForm({ nextPath }: { nextPath?: string | null }) {
     } else if (result?.success) {
       router.push(getSafeInternalPath(nextPath) ?? '/dashboard')
     }
+  }
+
+  async function handleFacebookLogin() {
+    setError(null)
+    setOauthLoading(true)
+
+    const supabase = createClient()
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'facebook',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (!oauthError) return
+    } catch {
+      // Fall through to the shared Vietnamese error below.
+    }
+
+    setError(FACEBOOK_LOGIN_ERROR)
+    setOauthLoading(false)
   }
 
   return (
@@ -117,6 +149,25 @@ export default function LoginForm({ nextPath }: { nextPath?: string | null }) {
           )}
         </Button>
       </form>
+
+      <div className="mt-5">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={loading || oauthLoading}
+          onClick={handleFacebookLogin}
+          className="w-full h-10"
+        >
+          {oauthLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Đang chuyển hướng...
+            </>
+          ) : (
+            'Đăng nhập bằng Facebook'
+          )}
+        </Button>
+      </div>
 
       <p className="text-sm text-gray-500 text-center mt-6">
         Chưa có tài khoản?{' '}

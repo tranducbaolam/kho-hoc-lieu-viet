@@ -10,6 +10,7 @@ export interface PostAttachment {
   file_size: number | null
   description: string | null
   display_order: number | null
+  download_count: number
   created_at: string | null
 }
 
