@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getSafeInternalPath } from '@/lib/auth/redirect'
 import { createClient } from '@/lib/supabase/client'
+import { GoogleIcon } from './GoogleIcon'
 
 const loginSchema = z.object({
   email: z.string().email('Email không hợp lệ'),
@@ -22,7 +23,7 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>
 
-const FACEBOOK_LOGIN_ERROR = 'Không thể đăng nhập bằng Facebook. Vui lòng thử lại.'
+const GOOGLE_LOGIN_ERROR = 'Không thể đăng nhập bằng Google. Vui lòng thử lại.'
 
 export default function LoginForm({
   nextPath,
@@ -55,14 +56,14 @@ export default function LoginForm({
     }
   }
 
-  async function handleFacebookLogin() {
+  async function handleGoogleLogin() {
     setError(null)
     setOauthLoading(true)
 
     const supabase = createClient()
     try {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider: 'facebook',
+        provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
         },
@@ -73,7 +74,7 @@ export default function LoginForm({
       // Fall through to the shared Vietnamese error below.
     }
 
-    setError(FACEBOOK_LOGIN_ERROR)
+    setError(GOOGLE_LOGIN_ERROR)
     setOauthLoading(false)
   }
 
@@ -155,8 +156,8 @@ export default function LoginForm({
           type="button"
           variant="outline"
           disabled={loading || oauthLoading}
-          onClick={handleFacebookLogin}
-          className="w-full h-10"
+          onClick={handleGoogleLogin}
+          className="w-full h-10 gap-2"
         >
           {oauthLoading ? (
             <>
@@ -164,7 +165,10 @@ export default function LoginForm({
               Đang chuyển hướng...
             </>
           ) : (
-            'Đăng nhập bằng Facebook'
+            <>
+              <GoogleIcon className="h-4 w-4" />
+              Đăng nhập bằng Google
+            </>
           )}
         </Button>
       </div>

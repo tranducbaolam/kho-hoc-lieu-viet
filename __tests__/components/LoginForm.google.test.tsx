@@ -42,24 +42,24 @@ beforeEach(() => {
 })
 
 describe('LoginForm Google OAuth', () => {
-  it('does not show Google login button', () => {
+  it('does not show Facebook login button', () => {
     render(<LoginForm />)
-    expect(screen.queryByRole('button', { name: /google/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /facebook/i })).not.toBeInTheDocument()
   })
 
-  it('shows Facebook login button', () => {
+  it('shows Google login button', () => {
     render(<LoginForm />)
-    expect(screen.getByRole('button', { name: 'Đăng nhập bằng Facebook' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Đăng nhập bằng Google' })).toBeInTheDocument()
   })
 
-  it('starts Facebook OAuth with Supabase', async () => {
+  it('starts Google OAuth with Supabase', async () => {
     render(<LoginForm />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập bằng Facebook' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập bằng Google' }))
 
     await waitFor(() => {
       expect(mockSignInWithOAuth).toHaveBeenCalledWith({
-        provider: 'facebook',
+        provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
         },
@@ -67,13 +67,13 @@ describe('LoginForm Google OAuth', () => {
     })
   })
 
-  it('shows a Vietnamese error if Facebook OAuth cannot start', async () => {
+  it('shows a Vietnamese error if Google OAuth cannot start', async () => {
     mockSignInWithOAuth.mockResolvedValue({ error: { message: 'OAuth error' } })
     render(<LoginForm />)
 
-    fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập bằng Facebook' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Đăng nhập bằng Google' }))
 
-    expect(await screen.findByText('Không thể đăng nhập bằng Facebook. Vui lòng thử lại.')).toBeInTheDocument()
+    expect(await screen.findByText('Không thể đăng nhập bằng Google. Vui lòng thử lại.')).toBeInTheDocument()
   })
 
   it('keeps email and password login working', async () => {

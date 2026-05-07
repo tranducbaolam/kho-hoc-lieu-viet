@@ -12,6 +12,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CHECK_EMAIL_VERIFICATION_MESSAGE } from '@/lib/auth/emailVerification'
+import { createClient } from '@/lib/supabase/client'
+import { GoogleIcon } from './GoogleIcon'
 
 const registerSchema = z.object({
   full_name: z.string().min(2, 'Tên cần ít nhất 2 ký tự'),
@@ -25,9 +27,12 @@ const registerSchema = z.object({
 
 type RegisterFormValues = z.infer<typeof registerSchema>
 
+const GOOGLE_SIGNUP_ERROR = 'Không thể tạo tài khoản bằng Google. Vui lòng thử lại.'
+
 export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [oauthLoading, setOauthLoading] = useState(false)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
 
   const { register, handleSubmit, clearErrors, formState: { errors } } = useForm<RegisterFormValues>({
@@ -49,6 +54,28 @@ export default function RegisterForm() {
       setNeedsConfirmation(true)
       setLoading(false)
     }
+  }
+
+  async function handleGoogleSignup() {
+    setError(null)
+    setOauthLoading(true)
+
+    const supabase = createClient()
+    try {
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (!oauthError) return
+    } catch {
+      // Fall through to the shared Vietnamese error below.
+    }
+
+    setError(GOOGLE_SIGNUP_ERROR)
+    setOauthLoading(false)
   }
 
   if (needsConfirmation) {
@@ -165,7 +192,7 @@ export default function RegisterForm() {
 
         <Button
           type="submit"
-          disabled={loading}
+          disabled={loading || oauthLoading}
           className="w-full h-10 mt-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white border-0 shadow-sm shadow-blue-500/20 transition-all duration-200 hover:shadow-md hover:shadow-blue-500/20 hover:-translate-y-px active:translate-y-0"
         >
           {loading ? (
@@ -178,6 +205,28 @@ export default function RegisterForm() {
           )}
         </Button>
       </form>
+
+      <div className="mt-5">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={loading || oauthLoading}
+          onClick={handleGoogleSignup}
+          className="w-full h-10 gap-2"
+        >
+          {oauthLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Đang chuyển hướng...
+            </>
+          ) : (
+            <>
+              <GoogleIcon className="h-4 w-4" />
+              Tạo tài khoản bằng Google
+            </>
+          )}
+        </Button>
+      </div>
 
       <p className="text-sm text-gray-500 text-center mt-6">
         Đã có tài khoản?{' '}
