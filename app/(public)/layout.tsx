@@ -44,7 +44,20 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       </header>
       <main className="flex-1">{children}</main>
       <footer className="border-t py-8 text-center text-xs text-muted-foreground/60 tracking-wide">
-        <p>&copy; {new Date().getFullYear()} Kho Học Liệu Việt. Nội dung học tập nguyên bản.</p>
+        <div className="container max-w-7xl mx-auto px-4 space-y-3">
+          <p>&copy; {new Date().getFullYear()} Kho Học Liệu Việt. Nội dung học tập nguyên bản.</p>
+          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Chính sách quyền riêng tư
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Điều khoản sử dụng
+            </Link>
+            <Link href="/delete-data" className="hover:text-foreground transition-colors">
+              Xóa dữ liệu người dùng
+            </Link>
+          </nav>
+        </div>
       </footer>
     </div>
   )
